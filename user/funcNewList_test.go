@@ -9,7 +9,6 @@ import (
 	"math/rand"
 	"reflect"
 	"sync"
-	"testing"
 	"time"
 )
 
@@ -167,8 +166,6 @@ func getRandKeyAndValue(numberOfUsers int, cache *map[string]data.Status) (key s
 
 	return
 }
-
-func BenchmarkSimulator(b *testing.B) {}
 
 func ExampleNewList() {
 
