@@ -1,9 +1,10 @@
-package user
+package main
 
 import (
-	"cacheSimulator/data"
-	"cacheSimulator/statics"
-	"cacheSimulator/statisticsBasicsFunctions"
+	"cacheSimulator/simulator/data"
+	"cacheSimulator/simulator/statics"
+	"cacheSimulator/simulator/statisticsBasicsFunctions"
+	"cacheSimulator/simulator/user"
 	"fmt"
 	"log"
 	"math/rand"
@@ -88,68 +89,6 @@ func (e *CacheAsync) GetCacheCopy() (cache map[string]data.Status) {
 	return
 }
 
-type LockUnlockMethod struct {
-	Cache map[string]data.Status
-	m     sync.RWMutex
-}
-
-func (e *LockUnlockMethod) Init() {
-	e.Cache = make(map[string]data.Status)
-}
-
-func (e *LockUnlockMethod) StatusSetAllCache(newData map[string]data.Status) {
-	e.m.Lock()
-	defer e.m.Unlock()
-
-	e.Cache = newData
-}
-
-func (e *LockUnlockMethod) StatusSet(key string, keyData data.Status) {
-	e.m.Lock()
-	defer e.m.Unlock()
-
-	e.Cache[key] = keyData
-}
-
-func (e *LockUnlockMethod) StatusSetSync(key string, keyData data.Status) {
-	e.m.Lock()
-	defer e.m.Unlock()
-
-	e.Cache[key] = keyData
-}
-
-func (e *LockUnlockMethod) StatusInvalidate(key string) {
-	e.m.Lock()
-	defer e.m.Unlock()
-
-	if key == "all" {
-		e.Cache = make(map[string]data.Status)
-	} else {
-		delete(e.Cache, key)
-	}
-}
-
-func (e *LockUnlockMethod) Populate(key string, keyData data.Status) {
-	e.m.Lock()
-	defer e.m.Unlock()
-
-	e.Cache[key] = keyData
-}
-
-func (e *LockUnlockMethod) GetCacheCopy() (cache map[string]data.Status) {
-	e.m.Lock()
-	defer e.m.Unlock()
-
-	cache = make(map[string]data.Status)
-	dv, sv := reflect.ValueOf(cache), reflect.ValueOf(e.Cache)
-
-	for _, k := range sv.MapKeys() {
-		dv.SetMapIndex(k, sv.MapIndex(k))
-	}
-
-	return
-}
-
 func getRandKeyAndValue(numberOfUsers int, cache *map[string]data.Status) (key string, keyData data.Status) {
 	randGenerator := rand.New(rand.NewSource(time.Now().UnixNano()))
 	keyAsNumber := randGenerator.Intn(numberOfUsers - 1)
@@ -167,25 +106,24 @@ func getRandKeyAndValue(numberOfUsers int, cache *map[string]data.Status) (key s
 	return
 }
 
-func ExampleNewList() {
+func main() {
+
+	numberOfUsers := 100 * 1000
+	doesNothingPercent := 2
+	setAllCachePercent := 4
+	setOnePercent := 45
+	setSyncPercent := 45
+	invalidateKeyPercent := 4
+	invalidateAllPercent := 4
 
 	eventController := &CacheAsync{}
 	eventController.Init()
 
 	statistcsController := &statisticsBasicsFunctions.SelectUserAction{}
 
-	numberOfUsers := 100000
-	doesNothing := 1
-	setAllCache := 1
-	setOne := 48
-	setSync := 48
-	invalidate := 2
-
-	assyncronous := true
-
 	numberTotalOfEventsInTests := 1000
 
-	cache, err := NewList(eventController, statistcsController, numberOfUsers, doesNothing, setAllCache, setOne, setSync, invalidate)
+	cache, err := user.NewList(eventController, statistcsController, numberOfUsers, doesNothingPercent, setAllCachePercent, setOnePercent, setSyncPercent, invalidateKeyPercent, invalidateAllPercent)
 
 	if err != nil {
 		log.Fatalf("NewList error: %v", err)
@@ -200,43 +138,30 @@ func ExampleNewList() {
 		switch event {
 		case statics.KDoesNothing:
 
-		case statics.KStatusInvalidate:
+		case statics.KStatusInvalidateKey:
 			key, _ := getRandKeyAndValue(numberOfUsers, &c)
+			go eventController.StatusInvalidate(key)
 
-			if assyncronous == true {
-				go eventController.StatusInvalidate(key)
-			} else {
-				eventController.StatusInvalidate(key)
-			}
+		case statics.KStatusInvalidateAll:
+			go func(cache *map[string]data.Status) {
+				eventController.StatusInvalidate("all")
+				eventController.StatusSetAllCache(*cache)
+			}(cache)
 
 		case statics.KStatusSet:
 			key, value := getRandKeyAndValue(numberOfUsers, &c)
-
-			if assyncronous == true {
-				go eventController.StatusSet(key, value)
-			} else {
-				eventController.StatusSet(key, value)
-			}
+			go eventController.StatusSet(key, value)
 
 		case statics.KStatusSetAllCache:
-			if assyncronous == true {
-				go eventController.StatusSetAllCache(*cache)
-			} else {
-				eventController.StatusSetAllCache(*cache)
-			}
+			go eventController.StatusSetAllCache(*cache)
 
 		case statics.KStatusSetSync:
 			key, value := getRandKeyAndValue(numberOfUsers, &c)
-			if assyncronous == true {
-				go eventController.StatusSetSync(key, value)
-			} else {
-				eventController.StatusSetSync(key, value)
-			}
+			go eventController.StatusSetSync(key, value)
+
 		}
 	}
 	duration := time.Since(start)
 	fmt.Printf("Tempo total: %v", duration)
 
-	// Output:
-	//
 }

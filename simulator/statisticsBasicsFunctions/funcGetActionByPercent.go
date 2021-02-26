@@ -1,6 +1,8 @@
 package statisticsBasicsFunctions
 
-import "cacheSimulator/statics"
+import (
+	"cacheSimulator/simulator/statics"
+)
 
 // getEventByPercent (Português): Converte o valor percentual em ação.
 func (e *SelectUserAction) getEventByPercent(percent float64) statics.CacheEvent {
@@ -20,5 +22,9 @@ func (e *SelectUserAction) getEventByPercent(percent float64) statics.CacheEvent
 		return statics.KStatusSetSync
 	}
 
-	return statics.KStatusInvalidate
+	if e.DoesNothing+e.SetAllCache+e.SetOne+e.SetSync+e.InvalidateKey > percent {
+		return statics.KStatusInvalidateKey
+	}
+
+	return statics.KStatusInvalidateAll
 }

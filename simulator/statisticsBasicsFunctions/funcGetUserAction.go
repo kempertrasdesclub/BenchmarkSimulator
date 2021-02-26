@@ -1,7 +1,7 @@
 package statisticsBasicsFunctions
 
 import (
-	"cacheSimulator/statics"
+	"cacheSimulator/simulator/statics"
 	"math/rand"
 	"time"
 )

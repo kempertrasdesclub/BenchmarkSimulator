@@ -13,7 +13,8 @@ const (
 	KStatusSetAllCache
 	KStatusSet
 	KStatusSetSync
-	KStatusInvalidate
+	KStatusInvalidateKey
+	KStatusInvalidateAll
 )
 
 var eventAsString = [...]string{
@@ -21,5 +22,6 @@ var eventAsString = [...]string{
 	"set all cache",
 	"set one",
 	"set sync",
-	"invalidate",
+	"invalidate key",
+	"invalidate all",
 }

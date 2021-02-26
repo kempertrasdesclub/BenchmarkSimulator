@@ -1,9 +1,0 @@
-package statisticsBasicsFunctions
-
-type SelectUserAction struct {
-	DoesNothing float64
-	SetAllCache float64
-	SetOne      float64
-	SetSync     float64
-	Invalidate  float64
-}

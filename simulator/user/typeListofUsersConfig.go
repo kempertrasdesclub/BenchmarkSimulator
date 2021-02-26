@@ -1,8 +1,8 @@
 package user
 
 import (
-	"cacheSimulator/data"
-	"cacheSimulator/statics"
+	"cacheSimulator/simulator/data"
+	"cacheSimulator/simulator/statics"
 )
 
 type Interactions interface {
@@ -16,6 +16,6 @@ type Interactions interface {
 }
 
 type Statistics interface {
-	DefineEventOcurrences(doesNothing, setAllCache, setOne, setSync, invalidate int)
+	DefineEventOcurrences(doesNothing, setAllCache, setOne, setSync, invalidateKey, invalidateAll int)
 	GetEvent() (action statics.CacheEvent)
 }

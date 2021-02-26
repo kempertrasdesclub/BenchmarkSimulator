@@ -1,7 +1,7 @@
 package user
 
 import (
-	"cacheSimulator/data"
+	"cacheSimulator/simulator/data"
 	"errors"
 )
 
@@ -13,7 +13,8 @@ func NewList(
 	setAllCache,
 	setOne,
 	setSync,
-	invalidate int,
+	invalidateKey,
+	invalidateAll int,
 ) (
 	cache *map[string]data.Status,
 	err error,
@@ -25,7 +26,7 @@ func NewList(
 	}
 
 	if statistcsFunctions != nil {
-		statistcsFunctions.DefineEventOcurrences(doesNothing, setAllCache, setOne, setSync, invalidate)
+		statistcsFunctions.DefineEventOcurrences(doesNothing, setAllCache, setOne, setSync, invalidateKey, invalidateAll)
 	}
 
 	cache = &map[string]data.Status{}
