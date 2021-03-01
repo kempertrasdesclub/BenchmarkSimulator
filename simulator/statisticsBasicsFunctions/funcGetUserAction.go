@@ -1,19 +1,14 @@
 package statisticsBasicsFunctions
 
 import (
-	"cacheSimulator/simulator/statics"
+	"cacheSimulator/simulator/statistics"
 	"math/rand"
 	"time"
 )
 
-// GetEvent (Português): Retorna uma ação do usuário baseada nas configurações definidas em
-// DefineEventOcurrences()
-//
-//     Para exemplo de uso, veja a função DefineEventOcurrences()
-//
-func (e *SelectUserAction) GetEvent() (action statics.CacheEvent) {
+func (e *Engine) GetEvent() (action statistics.CacheEvent) {
 	var randGenerator = rand.New(rand.NewSource(time.Now().UnixNano()))
-	var randNumber = randGenerator.Intn(99) + 1
+	var randNumber = randGenerator.Intn(100)
 	var percent = float64(randNumber) / 100.0
 
 	return e.getEventByPercent(percent)

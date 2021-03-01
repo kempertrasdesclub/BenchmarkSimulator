@@ -9,7 +9,7 @@ import "math"
 // RoundNumber (Português): Arredonda um número
 //   value (float64): valor a ser arredondado
 //   return número arredondado sem casas decimais
-func (e *SelectUserAction) RoundNumber(value float64) float64 {
+func (e *Engine) RoundNumber(value float64) float64 {
 	var roundOn = 0.5
 	var places = 0.0
 

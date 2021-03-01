@@ -1,30 +1,34 @@
 package statisticsBasicsFunctions
 
 import (
-	"cacheSimulator/simulator/statics"
+	"cacheSimulator/simulator/statistics"
 )
 
 // getEventByPercent (Português): Converte o valor percentual em ação.
-func (e *SelectUserAction) getEventByPercent(percent float64) statics.CacheEvent {
-	if e.DoesNothing > percent {
-		return statics.KDoesNothing
+func (e *Engine) getEventByPercent(percent float64) statistics.CacheEvent {
+	if e.SetAllCache > percent {
+		return statistics.KStatusSetAllCache
 	}
 
-	if e.DoesNothing+e.SetAllCache > percent {
-		return statics.KStatusSetAllCache
+	if e.SetAllCache+e.SetOne > percent {
+		return statistics.KStatusSet
 	}
 
-	if e.DoesNothing+e.SetAllCache+e.SetOne > percent {
-		return statics.KStatusSet
+	if e.SetAllCache+e.SetOne+e.SetSync > percent {
+		return statistics.KStatusSetSync
 	}
 
-	if e.DoesNothing+e.SetAllCache+e.SetOne+e.SetSync > percent {
-		return statics.KStatusSetSync
+	if e.SetAllCache+e.SetOne+e.SetSync+e.InvalidateKey > percent {
+		return statistics.KStatusInvalidateKey
 	}
 
-	if e.DoesNothing+e.SetAllCache+e.SetOne+e.SetSync+e.InvalidateKey > percent {
-		return statics.KStatusInvalidateKey
+	if e.SetAllCache+e.SetOne+e.SetSync+e.InvalidateKey+e.InvalidateAll > percent {
+		return statistics.KStatusInvalidateAll
 	}
 
-	return statics.KStatusInvalidateAll
+	if e.SetAllCache+e.SetOne+e.SetSync+e.InvalidateKey+e.InvalidateAll+e.GetAll > percent {
+		return statistics.KStatusGetAll
+	}
+
+	return statistics.KStatusGetKey
 }

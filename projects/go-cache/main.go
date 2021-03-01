@@ -2,7 +2,7 @@ package main
 
 import (
 	"cacheSimulator/simulator/data"
-	"cacheSimulator/simulator/statics"
+	"cacheSimulator/simulator/statistics"
 	"cacheSimulator/simulator/statisticsBasicsFunctions"
 	"cacheSimulator/simulator/user"
 	"fmt"
@@ -25,7 +25,7 @@ func (e *GoCache) Init(wg *sync.WaitGroup) {
 	e.c = cache.New(cache.NoExpiration, cache.NoExpiration)
 }
 
-func (e *GoCache) StatusSetAllCache(newData map[string]data.Status) {
+func (e *GoCache) StatusSetAllCache(newData map[string]data.DataCache) {
 	e.wg.Add(1)
 	defer e.wg.Done()
 
@@ -36,14 +36,14 @@ func (e *GoCache) StatusSetAllCache(newData map[string]data.Status) {
 	}
 }
 
-func (e *GoCache) StatusSet(key string, keyData data.Status) {
+func (e *GoCache) StatusSet(key string, keyData data.DataCache) {
 	e.wg.Add(1)
 	defer e.wg.Done()
 
 	e.c.Set(key, keyData, cache.NoExpiration)
 }
 
-func (e *GoCache) StatusSetSync(key string, keyData data.Status) {
+func (e *GoCache) StatusSetSync(key string, keyData data.DataCache) {
 	e.wg.Add(1)
 	defer e.wg.Done()
 
@@ -61,27 +61,27 @@ func (e *GoCache) StatusInvalidate(key string) {
 	}
 }
 
-func (e *GoCache) Populate(key string, keyData data.Status) {
+func (e *GoCache) Populate(key string, keyData data.DataCache) {
 	e.wg.Add(1)
 	defer e.wg.Done()
 
 	e.c.Set(key, keyData, cache.NoExpiration)
 }
 
-func (e *GoCache) GetCacheCopy() (cache map[string]data.Status) {
+func (e *GoCache) GetCacheCopy() (cache map[string]data.DataCache) {
 	e.wg.Add(1)
 	defer e.wg.Done()
 
 	items := e.c.Items()
-	cache = make(map[string]data.Status)
+	cache = make(map[string]data.DataCache)
 
 	for k, v := range items {
-		cache[k] = v.Object.(data.Status)
+		cache[k] = v.Object.(data.DataCache)
 	}
 	return
 }
 
-func getRandKeyAndValue(numberOfUsers int, cache *map[string]data.Status) (key string, keyData data.Status) {
+func getRandKeyAndValue(numberOfUsers int, cache *map[string]data.DataCache) (key string, keyData data.DataCache) {
 	randGenerator := rand.New(rand.NewSource(time.Now().UnixNano()))
 	keyAsNumber := randGenerator.Intn(numberOfUsers - 1)
 	counter := 0
@@ -128,26 +128,26 @@ func main() {
 		event := statistcsController.GetEvent()
 
 		switch event {
-		case statics.KDoesNothing:
+		case statistics.KDoesNothing:
 
-		case statics.KStatusInvalidateKey:
+		case statistics.KStatusInvalidateKey:
 			key, _ := getRandKeyAndValue(numberOfUsers, &c)
 			go eventController.StatusInvalidate(key)
 
-		case statics.KStatusInvalidateAll:
-			go func(cache *map[string]data.Status) {
+		case statistics.KStatusInvalidateAll:
+			go func(cache *map[string]data.DataCache) {
 				eventController.StatusInvalidate("all")
 				eventController.StatusSetAllCache(*cache)
 			}(cacheData)
 
-		case statics.KStatusSet:
+		case statistics.KStatusSet:
 			key, value := getRandKeyAndValue(numberOfUsers, &c)
 			go eventController.StatusSet(key, value)
 
-		case statics.KStatusSetAllCache:
+		case statistics.KStatusSetAllCache:
 			go eventController.StatusSetAllCache(*cacheData)
 
-		case statics.KStatusSetSync:
+		case statistics.KStatusSetSync:
 			key, value := getRandKeyAndValue(numberOfUsers, &c)
 			go eventController.StatusSetSync(key, value)
 

@@ -2,7 +2,7 @@ package data
 
 import "sync"
 
-type Status struct {
+type DataCache struct {
 	UserId         string `json:"user_id"`
 	Status         string `json:"status"`
 	Manual         bool   `json:"manual"`
@@ -11,6 +11,6 @@ type Status struct {
 }
 
 type Cache struct {
-	Cache map[string]Status
+	Cache map[string]DataCache
 	m     sync.RWMutex
 }

@@ -5,7 +5,9 @@ import (
 	"cacheSimulator/simulator/statistics"
 	"cacheSimulator/simulator/statisticsBasicsFunctions"
 	"cacheSimulator/simulator/user"
+	"encoding/json"
 	"fmt"
+	"github.com/allegro/bigcache/v3"
 	"log"
 	"math/rand"
 	"reflect"
@@ -15,68 +17,71 @@ import (
 
 var wg sync.WaitGroup
 
-type CacheAsync struct {
-	c  map[string]data.DataCache
+type Bigcache struct {
+	c  *bigcache.BigCache
 	l  sync.RWMutex
 	wg *sync.WaitGroup
 }
 
-func (e *CacheAsync) SetKey(key string, data data.DataCache) {
+func (e *Bigcache) SetKey(key string, data data.DataCache) {
 	e.wg.Add(1)
 	defer e.wg.Done()
 
-	e.l.Lock()
-	defer e.l.Unlock()
+	var dataAsByte []byte
+	dataAsByte, _ = json.Marshal(&data)
 
-	e.c[key] = data
+	_ = e.c.Set(key, dataAsByte)
 }
 
-func (e *CacheAsync) SetAll(data map[string]data.DataCache) {
+func (e *Bigcache) SetAll(data map[string]data.DataCache) {
 	e.wg.Add(1)
 	defer e.wg.Done()
 
-	e.l.Lock()
-	defer e.l.Unlock()
+	var dataAsByte []byte
 
-	e.c = data
+	for k, v := range data {
+		dataAsByte, _ = json.Marshal(&v)
+		_ = e.c.Set(k, dataAsByte)
+	}
 }
 
-func (e *CacheAsync) Init(wg *sync.WaitGroup) {
+func (e *Bigcache) Init(wg *sync.WaitGroup) {
 	e.wg = wg
-	e.c = make(map[string]data.DataCache)
+	e.c, _ = bigcache.NewBigCache(bigcache.DefaultConfig(10 * time.Minute))
 }
 
-func (e *CacheAsync) StatusSetAllCache(newData map[string]data.DataCache) {
+func (e *Bigcache) StatusSetAllCache(newData map[string]data.DataCache) {
 	e.wg.Add(1)
 	defer e.wg.Done()
 
-	e.l.Lock()
-	defer e.l.Unlock()
-
-	e.c = newData
+	var dataAsByte []byte
+	for k, v := range newData {
+		dataAsByte, _ = json.Marshal(&v)
+		_ = e.c.Set(k, dataAsByte)
+	}
 }
 
-func (e *CacheAsync) StatusSet(key string, keyData data.DataCache) {
+func (e *Bigcache) StatusSet(key string, keyData data.DataCache) {
 	e.wg.Add(1)
 	defer e.wg.Done()
 
-	e.l.Lock()
-	defer e.l.Unlock()
+	var dataAsByte []byte
+	dataAsByte, _ = json.Marshal(&keyData)
 
-	e.c[key] = keyData
+	_ = e.c.Set(key, dataAsByte)
 }
 
-func (e *CacheAsync) StatusSetSync(key string, keyData data.DataCache) {
+func (e *Bigcache) StatusSetSync(key string, keyData data.DataCache) {
 	e.wg.Add(1)
 	defer e.wg.Done()
 
-	e.l.Lock()
-	defer e.l.Unlock()
+	var dataAsByte []byte
+	dataAsByte, _ = json.Marshal(&keyData)
 
-	e.c[key] = keyData
+	_ = e.c.Set(key, dataAsByte)
 }
 
-func (e *CacheAsync) StatusInvalidate(key string) {
+func (e *Bigcache) StatusInvalidate(key string) {
 	e.wg.Add(1)
 	defer e.wg.Done()
 
@@ -84,23 +89,23 @@ func (e *CacheAsync) StatusInvalidate(key string) {
 	defer e.l.Unlock()
 
 	if key == "all" {
-		e.c = make(map[string]data.DataCache)
+		e.c, _ = bigcache.NewBigCache(bigcache.DefaultConfig(10 * time.Minute))
 	} else {
-		delete(e.c, key)
+		_ = e.c.Delete(key)
 	}
 }
 
-func (e *CacheAsync) Populate(key string, keyData data.DataCache) {
+func (e *Bigcache) Populate(key string, keyData data.DataCache) {
 	e.wg.Add(1)
 	defer e.wg.Done()
 
-	e.l.Lock()
-	defer e.l.Unlock()
+	var dataAsByte []byte
+	dataAsByte, _ = json.Marshal(&keyData)
 
-	e.c[key] = keyData
+	_ = e.c.Set(key, dataAsByte)
 }
 
-func (e *CacheAsync) GetCacheCopy() (cache map[string]data.DataCache) {
+func (e *Bigcache) GetCacheCopy() (cache map[string]data.DataCache) {
 	e.wg.Add(1)
 	defer e.wg.Done()
 
@@ -137,22 +142,22 @@ func getRandKeyAndValue(numberOfUsers int, cache *map[string]data.DataCache) (ke
 func main() {
 
 	numberOfUsers := 100 * 1000
+	doesNothingPercent := 2
 	setAllCachePercent := 4
-	setOnePercent := 45
-	setSyncPercent := 45
+	setOnePercent := 15
+	setSyncPercent := 15
 	invalidateKeyPercent := 4
-	invalidateAllPercent := 4
-	getAll := 4
-	getKey := 4
+	invalidateAllPercent := 1
+	//get all e get key 25
 
-	eventController := &CacheAsync{}
+	eventController := &Bigcache{}
 	eventController.Init(&wg)
 
 	statistcsController := &statisticsBasicsFunctions.SelectUserAction{}
 
 	numberTotalOfEventsInTests := 1000
 
-	cacheData, err := user.NewList(eventController, statistcsController, numberOfUsers, setAllCachePercent, setOnePercent, setSyncPercent, invalidateKeyPercent, invalidateAllPercent, getAll, getKey)
+	cacheData, err := user.NewList(eventController, statistcsController, numberOfUsers, doesNothingPercent, setAllCachePercent, setOnePercent, setSyncPercent, invalidateKeyPercent, invalidateAllPercent)
 
 	if err != nil {
 		log.Fatalf("NewList error: %v", err)
@@ -165,6 +170,8 @@ func main() {
 		event := statistcsController.GetEvent()
 
 		switch event {
+		case statistics.KDoesNothing:
+
 		case statistics.KStatusInvalidateKey:
 			key, _ := getRandKeyAndValue(numberOfUsers, &c)
 			go eventController.StatusInvalidate(key)
@@ -186,9 +193,6 @@ func main() {
 			key, value := getRandKeyAndValue(numberOfUsers, &c)
 			go eventController.StatusSetSync(key, value)
 
-		case statistics.KStatusGetAll:
-
-		case statistics.KStatusGetKey:
 		}
 	}
 

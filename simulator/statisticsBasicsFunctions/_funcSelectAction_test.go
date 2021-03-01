@@ -1,64 +1,71 @@
 package statisticsBasicsFunctions
 
 import (
-	"cacheSimulator/simulator/statics"
-	"log"
+  "cacheSimulator/simulator/statistics"
+  "log"
 )
 
 func ExampleSelectUserAction_DefineEventOcurrences() {
 
-	// Note: for this test working, the sum of all values must be 100
-	var doesNotingStatisticsRequired = 66
-	var setAllCacheStatisticsRequired = 10
-	var setOneStatisticsRequired = 10
-	var setSyncStatisticsRequired = 10
-	var invalidateKeyStatisticsRequired = 2
-	var invalidateAllStatisticsRequired = 2
+	// Note: for this test working, the sum of all values must be 99
+	var setAllCacheStatisticsRequired = 15
+	var setOneStatisticsRequired = 15
+	var setSyncStatisticsRequired = 15
+	var invalidateKeyStatisticsRequired = 15
+	var invalidateAllStatisticsRequired = 15
+	var getAllStatisticsRequired = 15
+	var getKeyStatisticsRequired = 10
 
-	var doesNotingCalculedValue = 0.0
 	var setAllCacheCalculedValue = 0.0
 	var setOneCalculedValue = 0.0
 	var setSyncCalculedValue = 0.0
 	var invalidateKeyCalculedValue = 0.0
 	var invalidateAllCalculedValue = 0.0
+	var getAllCalculedValue = 0.0
+	var getKeyCalculedValue = 0.0
 	var sumCalculedValue = 0.0
 
 	userAction := SelectUserAction{}
-	userAction.DefineEventOcurrences(
-		doesNotingStatisticsRequired,
+	userAction.DefineEventOccurrences(
 		setAllCacheStatisticsRequired,
 		setOneStatisticsRequired,
 		setSyncStatisticsRequired,
 		invalidateKeyStatisticsRequired,
 		invalidateAllStatisticsRequired,
+		getAllStatisticsRequired,
+		getKeyStatisticsRequired,
 	)
 
 	for i := 0; i != 100000; i += 1 {
 		action := userAction.GetEvent()
 
 		switch action {
-		case statics.KDoesNothing:
-			doesNotingCalculedValue += 1.0
-			sumCalculedValue += 1
-
-		case statics.KStatusSetAllCache:
+		case statistics.KStatusSetAllCache:
 			setAllCacheCalculedValue += 1.0
 			sumCalculedValue += 1
 
-		case statics.KStatusSet:
+		case statistics.KStatusSet:
 			setOneCalculedValue += 1.0
 			sumCalculedValue += 1
 
-		case statics.KStatusSetSync:
+		case statistics.KStatusSetSync:
 			setSyncCalculedValue += 1.0
 			sumCalculedValue += 1
 
-		case statics.KStatusInvalidateKey:
+		case statistics.KStatusInvalidateKey:
 			invalidateKeyCalculedValue += 1.0
 			sumCalculedValue += 1
 
-		case statics.KStatusInvalidateAll:
+		case statistics.KStatusInvalidateAll:
 			invalidateAllCalculedValue += 1.0
+			sumCalculedValue += 1
+			
+		case statistics.KStatusGetAll:
+			getAllCalculedValue += 1.0
+			sumCalculedValue += 1
+
+		case statistics.KStatusGetKey:
+			getKeyCalculedValue += 1.0
 			sumCalculedValue += 1
 
 		default:
@@ -67,10 +74,6 @@ func ExampleSelectUserAction_DefineEventOcurrences() {
 	}
 
 	pass := true
-	if userAction.RoundNumber(doesNotingCalculedValue/sumCalculedValue*100) != float64(doesNotingStatisticsRequired) {
-		pass = false
-	}
-
 	if userAction.RoundNumber(setAllCacheCalculedValue/sumCalculedValue*100) != float64(setAllCacheStatisticsRequired) {
 		pass = false
 	}
@@ -91,12 +94,21 @@ func ExampleSelectUserAction_DefineEventOcurrences() {
 		pass = false
 	}
 
-	log.Printf("user does noting: %.2f\n", doesNotingCalculedValue/sumCalculedValue*100)
+	if userAction.RoundNumber(getAllCalculedValue/sumCalculedValue*100) != float64(getAllStatisticsRequired) {
+		pass = false
+	}
+
+	if userAction.RoundNumber(getKeyCalculedValue/sumCalculedValue*100) != float64(getKeyStatisticsRequired) {
+		pass = false
+	}
+
 	log.Printf("set all cache: %.2f\n", setAllCacheCalculedValue/sumCalculedValue*100)
 	log.Printf("set one: %.2f\n", setOneCalculedValue/sumCalculedValue*100)
 	log.Printf("set sync: %.2f\n", setSyncCalculedValue/sumCalculedValue*100)
-	log.Printf("invalidate: %.2f\n", invalidateKeyCalculedValue/sumCalculedValue*100)
-	log.Printf("invalidate: %.2f\n", invalidateAllCalculedValue/sumCalculedValue*100)
+	log.Printf("invalidate key: %.2f\n", invalidateKeyCalculedValue/sumCalculedValue*100)
+	log.Printf("invalidate all: %.2f\n", invalidateAllCalculedValue/sumCalculedValue*100)
+	log.Printf("getAll: %.2f\n", getAllCalculedValue/sumCalculedValue*100)
+	log.Printf("getKey: %.2f\n", getKeyCalculedValue/sumCalculedValue*100)
 
 	if pass == false {
 		log.Fatal("error in the estimated percentage value")

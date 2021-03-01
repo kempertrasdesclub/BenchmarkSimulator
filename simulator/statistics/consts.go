@@ -1,4 +1,4 @@
-package statics
+package statistics
 
 // CacheEvent (Português): Recebe a ação causada pelo usuário.
 type CacheEvent int
@@ -9,19 +9,21 @@ func (e CacheEvent) String() string {
 }
 
 const (
-	KDoesNothing CacheEvent = iota
-	KStatusSetAllCache
+	KStatusSetAllCache CacheEvent = iota
 	KStatusSet
 	KStatusSetSync
 	KStatusInvalidateKey
 	KStatusInvalidateAll
+	KStatusGetAll
+	KStatusGetKey
 )
 
 var eventAsString = [...]string{
-	"does nothing",
 	"set all cache",
 	"set one",
 	"set sync",
 	"invalidate key",
 	"invalidate all",
+	"get all",
+	"get key",
 }
