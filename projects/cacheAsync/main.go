@@ -13,12 +13,18 @@ import (
 	"time"
 )
 
+var wg sync.WaitGroup
+
 type CacheAsync struct {
-	c map[string]data.Status
-	l sync.RWMutex
+	c  map[string]data.Status
+	l  sync.RWMutex
+	wg *sync.WaitGroup
 }
 
 func (e *CacheAsync) SetKey(key string, data data.Status) {
+	e.wg.Add(1)
+	defer e.wg.Done()
+
 	e.l.Lock()
 	defer e.l.Unlock()
 
@@ -26,17 +32,24 @@ func (e *CacheAsync) SetKey(key string, data data.Status) {
 }
 
 func (e *CacheAsync) SetAll(data map[string]data.Status) {
+	e.wg.Add(1)
+	defer e.wg.Done()
+
 	e.l.Lock()
 	defer e.l.Unlock()
 
 	e.c = data
 }
 
-func (e *CacheAsync) Init() {
+func (e *CacheAsync) Init(wg *sync.WaitGroup) {
+	e.wg = wg
 	e.c = make(map[string]data.Status)
 }
 
 func (e *CacheAsync) StatusSetAllCache(newData map[string]data.Status) {
+	e.wg.Add(1)
+	defer e.wg.Done()
+
 	e.l.Lock()
 	defer e.l.Unlock()
 
@@ -44,6 +57,9 @@ func (e *CacheAsync) StatusSetAllCache(newData map[string]data.Status) {
 }
 
 func (e *CacheAsync) StatusSet(key string, keyData data.Status) {
+	e.wg.Add(1)
+	defer e.wg.Done()
+
 	e.l.Lock()
 	defer e.l.Unlock()
 
@@ -51,6 +67,9 @@ func (e *CacheAsync) StatusSet(key string, keyData data.Status) {
 }
 
 func (e *CacheAsync) StatusSetSync(key string, keyData data.Status) {
+	e.wg.Add(1)
+	defer e.wg.Done()
+
 	e.l.Lock()
 	defer e.l.Unlock()
 
@@ -58,6 +77,9 @@ func (e *CacheAsync) StatusSetSync(key string, keyData data.Status) {
 }
 
 func (e *CacheAsync) StatusInvalidate(key string) {
+	e.wg.Add(1)
+	defer e.wg.Done()
+
 	e.l.Lock()
 	defer e.l.Unlock()
 
@@ -69,6 +91,9 @@ func (e *CacheAsync) StatusInvalidate(key string) {
 }
 
 func (e *CacheAsync) Populate(key string, keyData data.Status) {
+	e.wg.Add(1)
+	defer e.wg.Done()
+
 	e.l.Lock()
 	defer e.l.Unlock()
 
@@ -76,6 +101,9 @@ func (e *CacheAsync) Populate(key string, keyData data.Status) {
 }
 
 func (e *CacheAsync) GetCacheCopy() (cache map[string]data.Status) {
+	e.wg.Add(1)
+	defer e.wg.Done()
+
 	e.l.Lock()
 	defer e.l.Unlock()
 
@@ -117,13 +145,13 @@ func main() {
 	invalidateAllPercent := 4
 
 	eventController := &CacheAsync{}
-	eventController.Init()
+	eventController.Init(&wg)
 
 	statistcsController := &statisticsBasicsFunctions.SelectUserAction{}
 
 	numberTotalOfEventsInTests := 1000
 
-	cache, err := user.NewList(eventController, statistcsController, numberOfUsers, doesNothingPercent, setAllCachePercent, setOnePercent, setSyncPercent, invalidateKeyPercent, invalidateAllPercent)
+	cacheData, err := user.NewList(eventController, statistcsController, numberOfUsers, doesNothingPercent, setAllCachePercent, setOnePercent, setSyncPercent, invalidateKeyPercent, invalidateAllPercent)
 
 	if err != nil {
 		log.Fatalf("NewList error: %v", err)
@@ -146,14 +174,14 @@ func main() {
 			go func(cache *map[string]data.Status) {
 				eventController.StatusInvalidate("all")
 				eventController.StatusSetAllCache(*cache)
-			}(cache)
+			}(cacheData)
 
 		case statics.KStatusSet:
 			key, value := getRandKeyAndValue(numberOfUsers, &c)
 			go eventController.StatusSet(key, value)
 
 		case statics.KStatusSetAllCache:
-			go eventController.StatusSetAllCache(*cache)
+			go eventController.StatusSetAllCache(*cacheData)
 
 		case statics.KStatusSetSync:
 			key, value := getRandKeyAndValue(numberOfUsers, &c)
@@ -161,6 +189,8 @@ func main() {
 
 		}
 	}
+
+	wg.Wait()
 	duration := time.Since(start)
 	fmt.Printf("Tempo total: %v", duration)
 
