@@ -6,6 +6,7 @@ import (
 	"cacheSimulator/simulator/statistics"
 	"errors"
 	"math/rand"
+	"sync"
 	"time"
 )
 
@@ -42,9 +43,59 @@ type Engine struct {
 	GetKey        float64
 }
 
-func (e *Engine) SetInterfaces(data interfaces.Data, interactions interfaces.Interactions) {
-	e.data = data
+func (e *Engine) Run(frameworkName string) {
+	var wg sync.WaitGroup
+
+	startTime := time.Now()
+	go e.interactions.SetAllCache(&wg, e.cache)
+	fistEventTime := time.Since(startTime)
+
+	startTime = time.Now()
+	for _, event := range e.eventList {
+		switch event.Event {
+		case statistics.KStatusSetAllCache:
+			go e.interactions.SetAllCache(&wg, e.cache)
+
+		case statistics.KStatusSet:
+			go e.interactions.Set(&wg, event.Key, event.DataCache)
+
+		case statistics.KStatusSetSync:
+			go e.interactions.SetSync(&wg, event.Key, event.DataCache)
+
+		case statistics.KStatusInvalidateKey:
+			go e.interactions.InvalidateKey(&wg, event.Key)
+
+		case statistics.KStatusInvalidateAll:
+			go func() {
+				e.interactions.InvalidateAll(&wg)
+				e.interactions.SetAllCache(&wg, e.cache)
+			}()
+
+		case statistics.KStatusGetAll:
+			go e.interactions.GetAll(&wg)
+
+		case statistics.KStatusGetKey:
+			go e.interactions.GetKey(&wg, event.Key)
+
+		}
+	}
+
+	endTime := time.Since(startTime)
+	wg.Wait()
+
+	e.report(fistEventTime, endTime, frameworkName)
+}
+
+func (e *Engine) report(firstDataTime, timeDuration time.Duration, frameworkName string) {
+
+}
+
+func (e *Engine) SetInterfaceInteractions(interactions interfaces.Interactions) {
 	e.interactions = interactions
+}
+
+func (e *Engine) SetInterfaceData(data interfaces.Data) {
+	e.data = data
 }
 
 func (e *Engine) Init() (err error) {
