@@ -10,11 +10,10 @@ import (
 
 func main() {
 	var err error
-	eng := engine.Engine{
-		SizeOfData:   300 * 1000,
-		SizeOfEvents: 10 * 1000,
-	}
+	eng := engine.Engine{}
 
+	eng.SetDataSize(10 * 1000)
+	eng.SetEventsSize(1000)
 	eng.SetInterfaceData(&user.User{})
 	eng.DefineEventOccurrences(
 		1,
@@ -33,5 +32,5 @@ func main() {
 		log.Fatalf("engine error: %v", err.Error())
 	}
 
-	eng.Run()
+	eng.RunSync()
 }

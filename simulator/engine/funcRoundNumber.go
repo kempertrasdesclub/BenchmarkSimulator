@@ -2,14 +2,14 @@ package engine
 
 import "math"
 
-// RoundNumber (English): Round a number
+// roundNumber (English): Round a number
 //   value (float64): value to be rounded
 //   return rounded without decimal places
 //
-// RoundNumber (Português): Arredonda um número
+// roundNumber (Português): Arredonda um número
 //   value (float64): valor a ser arredondado
 //   return número arredondado sem casas decimais
-func (e *Engine) RoundNumber(value float64) float64 {
+func (e *Engine) roundNumber(value float64) float64 {
 	var roundOn = 0.5
 	var places = 0.0
 

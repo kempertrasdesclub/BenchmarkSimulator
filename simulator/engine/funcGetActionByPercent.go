@@ -6,23 +6,23 @@ import (
 
 // getEventByPercent (Português): Converte o valor percentual em ação.
 func (e *Engine) getEventByPercent(percent float64) statistics.CacheEvent {
-	if e.SetAllCache > percent {
+	if e.setAllCache > percent {
 		return statistics.KSetAllCache
 	}
 
-	if e.SetAllCache+e.SetOne > percent {
+	if e.setAllCache+e.setOne > percent {
 		return statistics.KSet
 	}
 
-	if e.SetAllCache+e.SetOne+e.InvalidateKey > percent {
+	if e.setAllCache+e.setOne+e.invalidateKey > percent {
 		return statistics.KInvalidateKey
 	}
 
-	if e.SetAllCache+e.SetOne+e.InvalidateKey+e.InvalidateAll > percent {
+	if e.setAllCache+e.setOne+e.invalidateKey+e.invalidateAll > percent {
 		return statistics.KInvalidateAll
 	}
 
-	if e.SetAllCache+e.SetOne+e.InvalidateKey+e.InvalidateAll+e.GetAll > percent {
+	if e.setAllCache+e.setOne+e.invalidateKey+e.invalidateAll+e.getAll > percent {
 		return statistics.KGetAll
 	}
 

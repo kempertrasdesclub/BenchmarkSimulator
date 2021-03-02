@@ -3,10 +3,10 @@ package engine
 func (e *Engine) DefineEventOccurrences(setAllCache, setOne, invalidateKey, invalidateAll, getAll, getKey int) {
 	var amount = float64(setAllCache + setOne + invalidateKey + invalidateAll + getAll + getKey)
 
-	e.SetAllCache = float64(setAllCache) / amount
-	e.SetOne = float64(setOne) / amount
-	e.InvalidateKey = float64(invalidateKey) / amount
-	e.InvalidateAll = float64(invalidateAll) / amount
-	e.GetAll = float64(getAll) / amount
-	e.GetKey = float64(getKey) / amount
+	e.setAllCache = float64(setAllCache) / amount
+	e.setOne = float64(setOne) / amount
+	e.invalidateKey = float64(invalidateKey) / amount
+	e.invalidateAll = float64(invalidateAll) / amount
+	e.getAll = float64(getAll) / amount
+	e.getKey = float64(getKey) / amount
 }
