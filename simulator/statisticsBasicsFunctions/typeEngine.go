@@ -28,7 +28,6 @@ type Engine struct {
 
 	totalSetAllCache   int
 	totalSetOne        int
-	totalSetSync       int
 	totalInvalidateKey int
 	totalInvalidateAll int
 	totalGetAll        int
@@ -36,7 +35,6 @@ type Engine struct {
 
 	SetAllCache   float64
 	SetOne        float64
-	SetSync       float64
 	InvalidateKey float64
 	InvalidateAll float64
 	GetAll        float64
@@ -53,28 +51,25 @@ func (e *Engine) Run(frameworkName string) {
 	startTime = time.Now()
 	for _, event := range e.eventList {
 		switch event.Event {
-		case statistics.KStatusSetAllCache:
+		case statistics.KSetAllCache:
 			go e.interactions.SetAllCache(&wg, e.cache)
 
-		case statistics.KStatusSet:
+		case statistics.KSet:
 			go e.interactions.Set(&wg, event.Key, event.DataCache)
 
-		case statistics.KStatusSetSync:
-			go e.interactions.SetSync(&wg, event.Key, event.DataCache)
-
-		case statistics.KStatusInvalidateKey:
+		case statistics.KInvalidateKey:
 			go e.interactions.InvalidateKey(&wg, event.Key)
 
-		case statistics.KStatusInvalidateAll:
+		case statistics.KInvalidateAll:
 			go func() {
 				e.interactions.InvalidateAll(&wg)
 				e.interactions.SetAllCache(&wg, e.cache)
 			}()
 
-		case statistics.KStatusGetAll:
+		case statistics.KGetAll:
 			go e.interactions.GetAll(&wg)
 
-		case statistics.KStatusGetKey:
+		case statistics.KGetKey:
 			go e.interactions.GetKey(&wg, event.Key)
 
 		}
@@ -167,25 +162,22 @@ func (e *Engine) addEvent(key string, dataCache data.DataCache, event statistics
 	})
 
 	switch event {
-	case statistics.KStatusSetAllCache:
+	case statistics.KSetAllCache:
 		e.totalSetAllCache += 1
 
-	case statistics.KStatusSet:
+	case statistics.KSet:
 		e.totalSetOne += 1
 
-	case statistics.KStatusSetSync:
-		e.totalSetSync += 1
-
-	case statistics.KStatusInvalidateKey:
+	case statistics.KInvalidateKey:
 		e.totalInvalidateKey += 1
 
-	case statistics.KStatusInvalidateAll:
+	case statistics.KInvalidateAll:
 		e.totalInvalidateAll += 1
 
-	case statistics.KStatusGetAll:
+	case statistics.KGetAll:
 		e.totalGetAll += 1
 
-	case statistics.KStatusGetKey:
+	case statistics.KGetKey:
 		e.totalGetKey += 1
 	}
 }

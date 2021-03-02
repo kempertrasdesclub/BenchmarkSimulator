@@ -130,24 +130,24 @@ func main() {
 		switch event {
 		case statistics.KDoesNothing:
 
-		case statistics.KStatusInvalidateKey:
+		case statistics.KInvalidateKey:
 			key, _ := getRandKeyAndValue(numberOfUsers, &c)
 			go eventController.StatusInvalidate(key)
 
-		case statistics.KStatusInvalidateAll:
+		case statistics.KInvalidateAll:
 			go func(cache *map[string]data.DataCache) {
 				eventController.StatusInvalidate("all")
 				eventController.StatusSetAllCache(*cache)
 			}(cacheData)
 
-		case statistics.KStatusSet:
+		case statistics.KSet:
 			key, value := getRandKeyAndValue(numberOfUsers, &c)
 			go eventController.StatusSet(key, value)
 
-		case statistics.KStatusSetAllCache:
+		case statistics.KSetAllCache:
 			go eventController.StatusSetAllCache(*cacheData)
 
-		case statistics.KStatusSetSync:
+		case statistics.KSetSync:
 			key, value := getRandKeyAndValue(numberOfUsers, &c)
 			go eventController.StatusSetSync(key, value)
 

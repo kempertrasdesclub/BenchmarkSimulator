@@ -40,31 +40,31 @@ func ExampleSelectUserAction_DefineEventOcurrences() {
 		action := userAction.GetEvent()
 
 		switch action {
-		case statistics.KStatusSetAllCache:
+		case statistics.KSetAllCache:
 			setAllCacheCalculedValue += 1.0
 			sumCalculedValue += 1
 
-		case statistics.KStatusSet:
+		case statistics.KSet:
 			setOneCalculedValue += 1.0
 			sumCalculedValue += 1
 
-		case statistics.KStatusSetSync:
+		case statistics.KSetSync:
 			setSyncCalculedValue += 1.0
 			sumCalculedValue += 1
 
-		case statistics.KStatusInvalidateKey:
+		case statistics.KInvalidateKey:
 			invalidateKeyCalculedValue += 1.0
 			sumCalculedValue += 1
 
-		case statistics.KStatusInvalidateAll:
+		case statistics.KInvalidateAll:
 			invalidateAllCalculedValue += 1.0
 			sumCalculedValue += 1
 			
-		case statistics.KStatusGetAll:
+		case statistics.KGetAll:
 			getAllCalculedValue += 1.0
 			sumCalculedValue += 1
 
-		case statistics.KStatusGetKey:
+		case statistics.KGetKey:
 			getKeyCalculedValue += 1.0
 			sumCalculedValue += 1
 

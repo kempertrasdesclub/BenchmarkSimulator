@@ -9,19 +9,17 @@ func (e CacheEvent) String() string {
 }
 
 const (
-	KStatusSetAllCache CacheEvent = iota
-	KStatusSet
-	KStatusSetSync
-	KStatusInvalidateKey
-	KStatusInvalidateAll
-	KStatusGetAll
-	KStatusGetKey
+	KSetAllCache CacheEvent = iota
+	KSet
+	KInvalidateKey
+	KInvalidateAll
+	KGetAll
+	KGetKey
 )
 
 var eventAsString = [...]string{
 	"set all cache",
 	"set one",
-	"set sync",
 	"invalidate key",
 	"invalidate all",
 	"get all",

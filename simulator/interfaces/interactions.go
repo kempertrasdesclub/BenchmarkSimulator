@@ -8,11 +8,10 @@ import (
 type Interactions interface {
 	SetAllCache(wg *sync.WaitGroup, content map[string]data.DataCache)
 	Set(wg *sync.WaitGroup, key string, content data.DataCache)
-	SetSync(wg *sync.WaitGroup, key string, content data.DataCache)
 	InvalidateKey(wg *sync.WaitGroup, key string)
 	InvalidateAll(wg *sync.WaitGroup)
 	GetKey(wg *sync.WaitGroup, key string) (content data.DataCache)
-	GetAll(wg *sync.WaitGroup) (content []data.DataCache)
+	GetAll(wg *sync.WaitGroup) (content map[string]data.DataCache)
 
 	GetFrameworkName() (name string)
 }

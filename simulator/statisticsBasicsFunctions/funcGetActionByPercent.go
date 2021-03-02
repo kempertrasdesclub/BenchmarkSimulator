@@ -7,28 +7,24 @@ import (
 // getEventByPercent (Português): Converte o valor percentual em ação.
 func (e *Engine) getEventByPercent(percent float64) statistics.CacheEvent {
 	if e.SetAllCache > percent {
-		return statistics.KStatusSetAllCache
+		return statistics.KSetAllCache
 	}
 
 	if e.SetAllCache+e.SetOne > percent {
-		return statistics.KStatusSet
+		return statistics.KSet
 	}
 
-	if e.SetAllCache+e.SetOne+e.SetSync > percent {
-		return statistics.KStatusSetSync
+	if e.SetAllCache+e.SetOne+e.InvalidateKey > percent {
+		return statistics.KInvalidateKey
 	}
 
-	if e.SetAllCache+e.SetOne+e.SetSync+e.InvalidateKey > percent {
-		return statistics.KStatusInvalidateKey
+	if e.SetAllCache+e.SetOne+e.InvalidateKey+e.InvalidateAll > percent {
+		return statistics.KInvalidateAll
 	}
 
-	if e.SetAllCache+e.SetOne+e.SetSync+e.InvalidateKey+e.InvalidateAll > percent {
-		return statistics.KStatusInvalidateAll
+	if e.SetAllCache+e.SetOne+e.InvalidateKey+e.InvalidateAll+e.GetAll > percent {
+		return statistics.KGetAll
 	}
 
-	if e.SetAllCache+e.SetOne+e.SetSync+e.InvalidateKey+e.InvalidateAll+e.GetAll > percent {
-		return statistics.KStatusGetAll
-	}
-
-	return statistics.KStatusGetKey
+	return statistics.KGetKey
 }
