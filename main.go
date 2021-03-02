@@ -2,6 +2,7 @@ package main
 
 import (
 	"cacheSimulator/projects/cacheAsync"
+	"cacheSimulator/projects/ristretto"
 	"cacheSimulator/simulator/engine"
 	"cacheSimulator/simulator/user"
 	"log"
@@ -14,6 +15,7 @@ func main() {
 		SizeOfEvents: 10 * 1000,
 	}
 
+	eng.SetInterfaceData(&user.User{})
 	eng.DefineEventOccurrences(
 		1,
 		28,
@@ -23,8 +25,8 @@ func main() {
 		40,
 	)
 
-	eng.SetInterfaceData(&user.User{})
 	eng.AddInterfaceInteractions(&cacheAsync.CacheAsync{})
+	eng.AddInterfaceInteractions(&ristretto.Ristretto{})
 
 	err = eng.Init()
 	if err != nil {

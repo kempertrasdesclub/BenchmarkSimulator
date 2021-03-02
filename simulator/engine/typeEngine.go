@@ -27,6 +27,8 @@ type Engine struct {
 	eventList []Event
 	cache     map[string]data.DataCache
 
+	doNotRepeatKeyList map[int]bool
+
 	totalSetAllCache   int
 	totalSetOne        int
 	totalInvalidateKey int
@@ -57,34 +59,30 @@ func (e *Engine) Run() {
 		for _, event := range e.eventList {
 			switch event.Event {
 			case statistics.KSetAllCache:
-				go interactCode.SetAllCache(&wg, e.cache)
+				interactCode.SetAllCache(&wg, e.cache)
 
 			case statistics.KSet:
-				go interactCode.Set(&wg, event.Key, event.DataCache)
+				interactCode.Set(&wg, event.Key, event.DataCache)
 
 			case statistics.KInvalidateKey:
-				go interactCode.InvalidateKey(&wg, event.Key)
+				interactCode.InvalidateKey(&wg, event.Key)
 
 			case statistics.KInvalidateAll:
-				go func() {
-					interactCode.InvalidateAll(&wg)
-					interactCode.SetAllCache(&wg, e.cache)
-				}()
+				interactCode.InvalidateAll(&wg)
+				interactCode.SetAllCache(&wg, e.cache)
 
 			case statistics.KGetAll:
-				go interactCode.GetAll(&wg)
+				interactCode.GetAll(&wg)
 
 			case statistics.KGetKey:
-				go interactCode.GetKey(&wg, event.Key)
-
+				interactCode.GetKey(&wg, event.Key)
 			}
 		}
 
+		wg.Wait()
 		endTime = time.Since(startTime)
 		e.report(fistEventTime, endTime, interactCode.GetFrameworkName())
 	}
-	wg.Wait()
-
 }
 
 func (e *Engine) report(firstDataTime, timeDuration time.Duration, frameworkName string) {
@@ -133,15 +131,21 @@ func (e *Engine) Init() (err error) {
 func (e *Engine) mountEvents() (err error) {
 	var key string
 	var dataCache data.DataCache
-	var randGenerator = rand.New(rand.NewSource(time.Now().UnixNano()))
-	var randNumber int
 
 	for i := 0; i != e.SizeOfEvents; i += 1 {
-		randNumber = randGenerator.Intn(e.SizeOfData - 1)
+
 		randomEvent := e.GetEvent()
-		key, dataCache, err = e.getCacheByNumericCounter(randNumber)
+		key, dataCache, err = e.getCacheByNumericCounter()
 		if err != nil {
 			return
+		}
+
+		if dataCache.UserId == "" {
+			panic(errors.New("id clear bug"))
+		}
+
+		if key != dataCache.UserId {
+			panic(errors.New("bug userID"))
 		}
 
 		e.addEvent(key, dataCache, randomEvent)
@@ -150,21 +154,36 @@ func (e *Engine) mountEvents() (err error) {
 	return
 }
 
-func (e *Engine) getCacheByNumericCounter(value int) (key string, dataCache data.DataCache, err error) {
-	if value > e.SizeOfData-1 {
-		err = errors.New("value out of range")
-		return
+func (e *Engine) getCacheByNumericCounter() (key string, dataCache data.DataCache, err error) {
+	var found bool
+	var randNumber int
+
+	if e.doNotRepeatKeyList == nil {
+		e.doNotRepeatKeyList = make(map[int]bool)
 	}
+
+	var randGenerator = rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	for {
+		randNumber = randGenerator.Intn(e.SizeOfData - 1)
+		_, found = e.doNotRepeatKeyList[randNumber]
+		if found == false {
+			break
+		}
+	}
+
+	e.doNotRepeatKeyList[randNumber] = true
 
 	counter := 0
 	for key, dataCache = range e.cache {
-		if counter == value {
+		if counter == randNumber {
 			return
 		}
 
 		counter += 1
 	}
 
+	err = errors.New("getCacheByNumericCounter().error: key not found")
 	return
 }
 
