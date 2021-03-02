@@ -1,4 +1,4 @@
-package statisticsBasicsFunctions
+package engine
 
 import (
 	"cacheSimulator/simulator/statistics"

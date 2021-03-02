@@ -22,6 +22,7 @@ func (e *CacheAsync) SetAllCache(wg *sync.WaitGroup, content map[string]data.Dat
 	e.l.Lock()
 	defer e.l.Unlock()
 
+	e.c = make(map[string]data.DataCache)
 	e.c = content
 }
 

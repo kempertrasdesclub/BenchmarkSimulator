@@ -2,8 +2,8 @@ package main
 
 import (
 	"cacheSimulator/simulator/data"
+	"cacheSimulator/simulator/engine"
 	"cacheSimulator/simulator/statistics"
-	"cacheSimulator/simulator/statisticsBasicsFunctions"
 	"cacheSimulator/simulator/user"
 	"encoding/json"
 	"fmt"
@@ -153,7 +153,7 @@ func main() {
 	eventController := &Bigcache{}
 	eventController.Init(&wg)
 
-	statistcsController := &statisticsBasicsFunctions.SelectUserAction{}
+	statistcsController := &engine.SelectUserAction{}
 
 	numberTotalOfEventsInTests := 1000
 

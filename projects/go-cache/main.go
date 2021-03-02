@@ -2,8 +2,8 @@ package main
 
 import (
 	"cacheSimulator/simulator/data"
+	"cacheSimulator/simulator/engine"
 	"cacheSimulator/simulator/statistics"
-	"cacheSimulator/simulator/statisticsBasicsFunctions"
 	"cacheSimulator/simulator/user"
 	"fmt"
 	"github.com/patrickmn/go-cache"
@@ -111,7 +111,7 @@ func main() {
 	eventController := &GoCache{}
 	eventController.Init(&wg)
 
-	statistcsController := &statisticsBasicsFunctions.SelectUserAction{}
+	statistcsController := &engine.SelectUserAction{}
 
 	numberTotalOfEventsInTests := 1000
 

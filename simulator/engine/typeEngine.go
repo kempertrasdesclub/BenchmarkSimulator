@@ -1,10 +1,11 @@
-package statisticsBasicsFunctions
+package engine
 
 import (
 	"cacheSimulator/simulator/data"
 	"cacheSimulator/simulator/interfaces"
 	"cacheSimulator/simulator/statistics"
 	"errors"
+	"fmt"
 	"math/rand"
 	"sync"
 	"time"
@@ -21,7 +22,7 @@ type Engine struct {
 	SizeOfEvents int
 
 	data         interfaces.Data
-	interactions interfaces.Interactions
+	interactions []interfaces.Interactions
 
 	eventList []Event
 	cache     map[string]data.DataCache
@@ -41,52 +42,72 @@ type Engine struct {
 	GetKey        float64
 }
 
-func (e *Engine) Run(frameworkName string) {
+func (e *Engine) Run() {
 	var wg sync.WaitGroup
+	var fistEventTime time.Duration
+	var startTime time.Time
+	var endTime time.Duration
 
-	startTime := time.Now()
-	go e.interactions.SetAllCache(&wg, e.cache)
-	fistEventTime := time.Since(startTime)
+	for _, interactCode := range e.interactions {
+		startTime = time.Now()
+		interactCode.SetAllCache(&wg, e.cache)
+		fistEventTime = time.Since(startTime)
 
-	startTime = time.Now()
-	for _, event := range e.eventList {
-		switch event.Event {
-		case statistics.KSetAllCache:
-			go e.interactions.SetAllCache(&wg, e.cache)
+		startTime = time.Now()
+		for _, event := range e.eventList {
+			switch event.Event {
+			case statistics.KSetAllCache:
+				go interactCode.SetAllCache(&wg, e.cache)
 
-		case statistics.KSet:
-			go e.interactions.Set(&wg, event.Key, event.DataCache)
+			case statistics.KSet:
+				go interactCode.Set(&wg, event.Key, event.DataCache)
 
-		case statistics.KInvalidateKey:
-			go e.interactions.InvalidateKey(&wg, event.Key)
+			case statistics.KInvalidateKey:
+				go interactCode.InvalidateKey(&wg, event.Key)
 
-		case statistics.KInvalidateAll:
-			go func() {
-				e.interactions.InvalidateAll(&wg)
-				e.interactions.SetAllCache(&wg, e.cache)
-			}()
+			case statistics.KInvalidateAll:
+				go func() {
+					interactCode.InvalidateAll(&wg)
+					interactCode.SetAllCache(&wg, e.cache)
+				}()
 
-		case statistics.KGetAll:
-			go e.interactions.GetAll(&wg)
+			case statistics.KGetAll:
+				go interactCode.GetAll(&wg)
 
-		case statistics.KGetKey:
-			go e.interactions.GetKey(&wg, event.Key)
+			case statistics.KGetKey:
+				go interactCode.GetKey(&wg, event.Key)
 
+			}
 		}
-	}
 
-	endTime := time.Since(startTime)
+		endTime = time.Since(startTime)
+		e.report(fistEventTime, endTime, interactCode.GetFrameworkName())
+	}
 	wg.Wait()
 
-	e.report(fistEventTime, endTime, frameworkName)
 }
 
 func (e *Engine) report(firstDataTime, timeDuration time.Duration, frameworkName string) {
+	fmt.Printf("Framework name: %v\n", frameworkName)
+	fmt.Printf("First data load time: %v\n", firstDataTime)
+	fmt.Printf("Execution time: %v\n", timeDuration)
+	fmt.Printf("Events list:\n")
+	fmt.Printf("  set all cache: %v\n", e.totalSetAllCache)
+	fmt.Printf("  set one key: %v\n", e.totalSetOne)
+	fmt.Printf("  set invalidate one key: %v\n", e.totalInvalidateKey)
+	fmt.Printf("  set invalidate all data: %v\n", e.totalInvalidateAll)
+	fmt.Printf("  set invalidate all data: %v\n", e.totalInvalidateAll)
+	fmt.Printf("  get all: %v\n", e.totalGetAll)
+	fmt.Printf("  get key: %v\n\n\n", e.totalGetKey)
 
 }
 
-func (e *Engine) SetInterfaceInteractions(interactions interfaces.Interactions) {
-	e.interactions = interactions
+func (e *Engine) AddInterfaceInteractions(interactions interfaces.Interactions) {
+	if len(e.interactions) == 0 {
+		e.interactions = make([]interfaces.Interactions, 0)
+	}
+
+	e.interactions = append(e.interactions, interactions)
 }
 
 func (e *Engine) SetInterfaceData(data interfaces.Data) {

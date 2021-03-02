@@ -1,4 +1,4 @@
-package statisticsBasicsFunctions
+package engine
 
 func (e *Engine) DefineEventOccurrences(setAllCache, setOne, invalidateKey, invalidateAll, getAll, getKey int) {
 	var amount = float64(setAllCache + setOne + invalidateKey + invalidateAll + getAll + getKey)
