@@ -14,6 +14,5 @@ type Interactions interface {
 	GetKey(wg *sync.WaitGroup, key string) (content data.DataCache)
 	GetAll(wg *sync.WaitGroup) (content []data.DataCache)
 
-	GetCacheCopy(wg *sync.WaitGroup) (cache map[string]data.DataCache)
-	Populate(wg *sync.WaitGroup, key string, content data.DataCache)
+	GetFrameworkName() (name string)
 }
