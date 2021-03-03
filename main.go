@@ -12,8 +12,8 @@ func main() {
 	var err error
 	eng := engine.Engine{}
 
-	eng.SetDataSize(10 * 1000)
-	eng.SetEventsSize(1000)
+	eng.SetDataSize(3 * 1000)
+	eng.SetEventsSize(100)
 	eng.SetInterfaceData(&user.User{})
 	eng.DefineEventOccurrences(
 		1,

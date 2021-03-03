@@ -5,5 +5,5 @@ import (
 )
 
 type Data interface {
-	NewData() (key string, user data.DataCache)
+	NewData() (key string, user data.DataCache, err error)
 }

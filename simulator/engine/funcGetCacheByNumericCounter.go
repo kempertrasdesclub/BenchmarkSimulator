@@ -8,34 +8,48 @@ import (
 )
 
 func (e *Engine) getCacheByNumericCounter() (key string, dataCache data.DataCache, err error) {
-	var found bool
 	var randNumber int
-
-	if e.doNotRepeatKeyList == nil {
-		e.doNotRepeatKeyList = make(map[int]bool)
-	}
-
+	var safeLoop int
+	var pass = false
 	var randGenerator = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	for {
+		safeLoop += 1
+		if safeLoop > 100*1000 {
+			panic(errors.New("engine.getCacheByNumericCounter().bug: safe loop overflow"))
+		}
+
+		counter := 0
 		randNumber = randGenerator.Intn(e.sizeOfData - 1)
-		_, found = e.doNotRepeatKeyList[randNumber]
-		if found == false {
-			break
+
+		for key, dataCache = range e.cache {
+			if counter == randNumber {
+
+				pass = true
+				for _, v := range e.eventList {
+					if key == "" {
+						panic(errors.New("engine.getCacheByNumericCounter().bug: key is blank"))
+					}
+					if key == v.Key {
+						pass = false
+						break
+					}
+				}
+
+				if pass == false {
+					break
+				}
+
+				return
+			}
+
+			counter += 1
+		}
+
+		if pass == false {
+			continue
 		}
 	}
 
-	e.doNotRepeatKeyList[randNumber] = true
-
-	counter := 0
-	for key, dataCache = range e.cache {
-		if counter == randNumber {
-			return
-		}
-
-		counter += 1
-	}
-
-	err = errors.New("getCacheByNumericCounter().error: key not found")
 	return
 }

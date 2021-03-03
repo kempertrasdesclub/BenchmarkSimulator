@@ -8,14 +8,18 @@ import (
 func (e *Engine) Init() (err error) {
 
 	if e.data == nil || e.interactions == nil {
-		err = errors.New("please, set interfaces first")
+		err = errors.New("engine.Init().error: please, set interfaces first")
 		return
 	}
 
-	e.eventList = make([]Event, 0)
 	e.cache = make(map[string]data.DataCache)
+	e.eventList = make([]Event, 0)
 
-	e.mountData()
+	err = e.mountData()
+	if err != nil {
+		return
+	}
+
 	err = e.mountEvents()
 
 	return
