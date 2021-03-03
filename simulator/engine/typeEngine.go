@@ -3,6 +3,7 @@ package engine
 import (
 	"cacheSimulator/simulator/data"
 	"cacheSimulator/simulator/interfaces"
+	"sync"
 )
 
 // Engine (Português): Objeto principal do framework engine
@@ -31,4 +32,6 @@ type Engine struct {
 	invalidateAll float64
 	getAll        float64
 	getKey        float64
+
+	mutex sync.Mutex
 }

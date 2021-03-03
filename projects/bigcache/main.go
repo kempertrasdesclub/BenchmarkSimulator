@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/allegro/bigcache/v3"
 	"log"
+	"reflect"
 	"sync"
 	"time"
 )
@@ -12,23 +13,44 @@ import (
 var wg sync.WaitGroup
 
 type Bigcache struct {
-	c *bigcache.BigCache
+	c     *bigcache.BigCache
+	mutex sync.RWMutex
+}
+
+func (e *Bigcache) mapCopy(dst, src interface{}) {
+	e.mutex.Lock()
+	defer e.mutex.Unlock()
+
+	dv, sv := reflect.ValueOf(dst), reflect.ValueOf(src)
+
+	for _, k := range sv.MapKeys() {
+		dv.SetMapIndex(k, sv.MapIndex(k))
+	}
 }
 
 func (e *Bigcache) SetAllCache(wg *sync.WaitGroup, content map[string]data.DataCache) {
+	e.mutex.Lock()
+	defer e.mutex.Unlock()
+
 	wg.Add(1)
 	defer wg.Done()
+
+	var m = make(map[string]data.DataCache)
+	e.mapCopy(m, content)
 
 	e.c, _ = bigcache.NewBigCache(bigcache.DefaultConfig(10 * time.Minute))
 
 	var dataAsByte []byte
-	for k, v := range content {
+	for k, v := range m {
 		dataAsByte, _ = json.Marshal(&v)
 		_ = e.c.Set(k, dataAsByte)
 	}
 }
 
 func (e *Bigcache) Set(wg *sync.WaitGroup, key string, content data.DataCache) {
+	e.mutex.Lock()
+	defer e.mutex.Unlock()
+
 	wg.Add(1)
 	defer wg.Done()
 
@@ -39,6 +61,9 @@ func (e *Bigcache) Set(wg *sync.WaitGroup, key string, content data.DataCache) {
 }
 
 func (e *Bigcache) InvalidateKey(wg *sync.WaitGroup, key string) {
+	e.mutex.Lock()
+	defer e.mutex.Unlock()
+
 	wg.Add(1)
 	defer wg.Done()
 
@@ -50,6 +75,9 @@ func (e *Bigcache) InvalidateKey(wg *sync.WaitGroup, key string) {
 }
 
 func (e *Bigcache) InvalidateAll(wg *sync.WaitGroup) {
+	e.mutex.Lock()
+	defer e.mutex.Unlock()
+
 	wg.Add(1)
 	defer wg.Done()
 
@@ -57,12 +85,16 @@ func (e *Bigcache) InvalidateAll(wg *sync.WaitGroup) {
 }
 
 func (e *Bigcache) GetKey(wg *sync.WaitGroup, key string) (content data.DataCache) {
+	e.mutex.Lock()
+	defer e.mutex.Unlock()
+
 	wg.Add(1)
 	defer wg.Done()
 
 	d, err := e.c.Get(key)
 	if err != nil {
 		log.Printf("bigcache.GetKey().error: %v", err)
+		return
 	}
 
 	var ret data.DataCache
@@ -75,6 +107,9 @@ func (e *Bigcache) GetKey(wg *sync.WaitGroup, key string) (content data.DataCach
 }
 
 func (e *Bigcache) GetAll(wg *sync.WaitGroup) (content map[string]data.DataCache) {
+	e.mutex.Lock()
+	defer e.mutex.Unlock()
+
 	wg.Add(1)
 	defer wg.Done()
 
@@ -85,6 +120,7 @@ func (e *Bigcache) GetAll(wg *sync.WaitGroup) (content map[string]data.DataCache
 		info, err := i.Value()
 		if err != nil {
 			log.Printf("bigcache.GetAll().error: %v", err)
+			return
 		}
 
 		var ret data.DataCache

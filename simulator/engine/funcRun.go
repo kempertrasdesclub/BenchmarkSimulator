@@ -3,9 +3,21 @@ package engine
 import (
 	"cacheSimulator/simulator/data"
 	"cacheSimulator/simulator/statistics"
+	"reflect"
 	"sync"
 	"time"
 )
+
+func (e *Engine) mapCopy(dst, src interface{}) {
+	e.mutex.Lock()
+	defer e.mutex.Unlock()
+
+	dv, sv := reflect.ValueOf(dst), reflect.ValueOf(src)
+
+	for _, k := range sv.MapKeys() {
+		dv.SetMapIndex(k, sv.MapIndex(k))
+	}
+}
 
 // run (Português): Roda todos os teste de forma síncrona ou assíncrona.
 //   synchronous: true para rodar os testes de forma síncrona (espera o teste acabar para chamar outro teste)
@@ -14,6 +26,7 @@ func (e *Engine) run(synchronous bool) (err error) {
 	var fistEventTime time.Duration
 	var startTime time.Time
 	var endTime time.Duration
+	var cacheCopy = make(map[string]data.DataCache)
 
 	err = e.init()
 	if err != nil {
@@ -22,7 +35,8 @@ func (e *Engine) run(synchronous bool) (err error) {
 
 	for _, interactCode := range e.interactions {
 		startTime = time.Now()
-		interactCode.SetAllCache(&wg, e.cache)
+		e.mapCopy(cacheCopy, e.cache)
+		interactCode.SetAllCache(&wg, cacheCopy)
 		fistEventTime = time.Since(startTime)
 
 		startTime = time.Now()
@@ -30,9 +44,13 @@ func (e *Engine) run(synchronous bool) (err error) {
 			switch event.Event {
 			case statistics.KSetAllCache:
 				if synchronous == true {
-					interactCode.SetAllCache(&wg, e.cache)
+					e.mapCopy(cacheCopy, e.cache)
+					interactCode.SetAllCache(&wg, cacheCopy)
 				} else {
-					go interactCode.SetAllCache(&wg, e.cache)
+					go func() {
+						e.mapCopy(cacheCopy, e.cache)
+						interactCode.SetAllCache(&wg, cacheCopy)
+					}()
 				}
 
 			case statistics.KSet:
@@ -52,12 +70,14 @@ func (e *Engine) run(synchronous bool) (err error) {
 			case statistics.KInvalidateAll:
 				if synchronous == true {
 					interactCode.InvalidateAll(&wg)
-					interactCode.SetAllCache(&wg, e.cache)
+					e.mapCopy(cacheCopy, e.cache)
+					interactCode.SetAllCache(&wg, cacheCopy)
 				} else {
+					e.mapCopy(cacheCopy, e.cache)
 					go func(wg *sync.WaitGroup, cache map[string]data.DataCache) {
 						interactCode.InvalidateAll(wg)
 						interactCode.SetAllCache(wg, cache)
-					}(&wg, e.cache)
+					}(&wg, cacheCopy)
 				}
 
 			case statistics.KGetAll:

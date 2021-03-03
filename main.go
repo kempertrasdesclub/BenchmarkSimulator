@@ -3,7 +3,6 @@ package main
 import (
 	"cacheSimulator/projects/bigcache"
 	"cacheSimulator/projects/cacheAsync"
-	go_cache "cacheSimulator/projects/go-cache"
 	"cacheSimulator/simulator/engine"
 	"cacheSimulator/simulator/user"
 	"log"
@@ -28,10 +27,10 @@ func main() {
 	eng.AddInterfaceInteractions(&cacheAsync.CacheAsync{})
 
 	eng.AddInterfaceInteractions(&bigcache.Bigcache{})
-	eng.AddInterfaceInteractions(&go_cache.GoCache{})
+	//eng.AddInterfaceInteractions(&go_cache.GoCache{})
 	//eng.AddInterfaceInteractions(&ristretto.Ristretto{})
 
-	err = eng.RunSync()
+	err = eng.RunAsync()
 	if err != nil {
 		log.Fatalf("engine error: %v", err.Error())
 	}
