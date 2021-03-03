@@ -9,14 +9,26 @@ func (e CacheEvent) String() string {
 }
 
 const (
+	// KSetAllCache (Português): inicializa a cache com um novo dado
 	KSetAllCache CacheEvent = iota
+
+	// KSet (Português): popula uma chave da cache com um novo dado
 	KSet
+
+	// KInvalidateKey (Português): apaga uma chave da cache
 	KInvalidateKey
+
+	// KInvalidateAll (Português): reinicia a cache sem dados
 	KInvalidateAll
+
+	// KGetAll (Português): recupera todos os dados da cache
 	KGetAll
+
+	// KGetKey (Português): recupera uma chave da cache
 	KGetKey
 )
 
+// eventAsString (Português): transforma a constante em string
 var eventAsString = [...]string{
 	"set all cache",
 	"set one",

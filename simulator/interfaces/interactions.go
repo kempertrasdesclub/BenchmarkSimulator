@@ -5,6 +5,7 @@ import (
 	"sync"
 )
 
+// Interactions (Português): Interface com as funções chamadas durante o teste da cache
 type Interactions interface {
 	// SetAllCache (Português): Popula a cache.
 	//     Nota: SetAllCache() é chamado de forma síncrona antes do código rodar a primeira vez.
