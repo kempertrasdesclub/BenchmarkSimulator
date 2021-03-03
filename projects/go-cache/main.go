@@ -3,6 +3,7 @@ package go_cache
 import (
 	"cacheSimulator/simulator/data"
 	"github.com/patrickmn/go-cache"
+	"log"
 	"sync"
 )
 
@@ -46,6 +47,10 @@ func (e *GoCache) GetKey(wg *sync.WaitGroup, key string) (content data.DataCache
 	defer wg.Done()
 
 	con, _ := e.c.Get(key)
+	if con == nil {
+		log.Println("go_cache.GetKey().error: key not found")
+		return
+	}
 	return con.(data.DataCache)
 }
 
