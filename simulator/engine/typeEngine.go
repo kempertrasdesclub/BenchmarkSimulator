@@ -33,5 +33,5 @@ type Engine struct {
 	getAll        float64
 	getKey        float64
 
-	mutex sync.Mutex
+	mutex sync.RWMutex
 }

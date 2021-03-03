@@ -20,7 +20,7 @@ func (e *Engine) getCacheByNumericCounter() (key string, dataCache data.DataCach
 
 	for {
 		safeLoop += 1
-		if safeLoop > 1000 {
+		if safeLoop > 100 {
 			panic(errors.New("engine.getCacheByNumericCounter().bug: safe loop overflow"))
 		}
 

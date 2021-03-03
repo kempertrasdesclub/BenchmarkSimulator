@@ -18,9 +18,6 @@ type Bigcache struct {
 }
 
 func (e *Bigcache) mapCopy(dst, src interface{}) {
-	e.mutex.Lock()
-	defer e.mutex.Unlock()
-
 	dv, sv := reflect.ValueOf(dst), reflect.ValueOf(src)
 
 	for _, k := range sv.MapKeys() {
