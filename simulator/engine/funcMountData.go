@@ -5,6 +5,8 @@ import (
 	"errors"
 )
 
+// mountData (Português): Monta dados não repetidos na memória de base para os testes
+//   err: indicador de erro
 func (e *Engine) mountData() (err error) {
 	var key string
 	var keyData data.DataCache

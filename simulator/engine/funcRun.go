@@ -7,11 +7,18 @@ import (
 	"time"
 )
 
-func (e *Engine) run(synchronous bool) {
+// run (Português): Roda todos os teste de forma síncrona ou assíncrona.
+//   synchronous: true para rodar os testes de forma síncrona (espera o teste acabar para chamar outro teste)
+func (e *Engine) run(synchronous bool) (err error) {
 	var wg sync.WaitGroup
 	var fistEventTime time.Duration
 	var startTime time.Time
 	var endTime time.Duration
+
+	err = e.init()
+	if err != nil {
+		return
+	}
 
 	for _, interactCode := range e.interactions {
 		startTime = time.Now()
@@ -73,4 +80,6 @@ func (e *Engine) run(synchronous bool) {
 		endTime = time.Since(startTime)
 		e.report(fistEventTime, endTime, interactCode.GetFrameworkName())
 	}
+
+	return
 }

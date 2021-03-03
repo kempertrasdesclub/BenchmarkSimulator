@@ -101,12 +101,10 @@ func main() {
 
 	eng.AddInterfaceInteractions(&CacheAsync{})
 
-	err = eng.Init()
+	err = eng.RunSync()
 	if err != nil {
 		log.Fatalf("engine error: %v", err.Error())
 	}
-
-	eng.RunSync()
 }
 
 ```

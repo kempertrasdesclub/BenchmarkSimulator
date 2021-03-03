@@ -5,6 +5,7 @@ import (
 	"cacheSimulator/simulator/interfaces"
 )
 
+// Engine (Português): Objeto principal do framework engine
 type Engine struct {
 	sizeOfData   int
 	sizeOfEvents int

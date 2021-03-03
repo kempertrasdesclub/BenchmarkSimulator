@@ -5,6 +5,7 @@ import (
 	"cacheSimulator/simulator/statistics"
 )
 
+// Event (Português): Arquiva os eventos a serem testados
 type Event struct {
 	DataCache data.DataCache
 	Event     statistics.CacheEvent

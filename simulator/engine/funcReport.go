@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// report (Português): Monta um relatório de execução ao final do teste
 func (e *Engine) report(firstDataTime, timeDuration time.Duration, frameworkName string) {
 	fmt.Printf("Framework name: %v\n", frameworkName)
 	fmt.Printf("Data size: %v\n", e.sizeOfData)

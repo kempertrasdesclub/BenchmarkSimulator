@@ -5,6 +5,13 @@ import (
 	"cacheSimulator/simulator/statistics"
 )
 
+// addEvent (Português): Adiciona um evento a lista de eventos.
+//   A lista de eventos é gerada aleatoriamente e arquiva os eventos de teste do framework na ordem de execução.
+//   Para mais informações sobre os eventos, veja interfaces.Interactions.
+//
+//   key:       chave contida na cache afetada
+//   dataCache: novo valor do dado
+//   event:     tipo de evento
 func (e *Engine) addEvent(key string, dataCache data.DataCache, event statistics.CacheEvent) {
 	e.eventList = append(e.eventList, Event{
 		DataCache: dataCache,

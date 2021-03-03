@@ -1,5 +1,6 @@
 package engine
 
-func (e *Engine) RunSync() {
-	e.run(true)
+// RunSync (Português): Roda todos os testes de forma linear.
+func (e *Engine) RunSync() (err error) {
+	return e.run(true)
 }

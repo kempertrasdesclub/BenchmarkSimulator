@@ -5,6 +5,8 @@ import (
 	"errors"
 )
 
+// mountEvents (Português): Monta a lista de eventos na ordem do teste.
+//   Nota: As chaves dos testes são únicas para evitar apagar chaves inexistentes.
 func (e *Engine) mountEvents() (err error) {
 	var key string
 	var dataCache data.DataCache

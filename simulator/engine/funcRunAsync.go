@@ -1,5 +1,6 @@
 package engine
 
-func (e *Engine) RunAsync() {
-	e.run(false)
+// RunAsync (Português): Roda todos os testes por goroutines
+func (e *Engine) RunAsync() (err error) {
+	return e.run(false)
 }

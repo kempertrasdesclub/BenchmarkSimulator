@@ -7,6 +7,10 @@ import (
 	"time"
 )
 
+// getCacheByNumericCounter (Português): Escolhe uma chave aleatoriamente no conjunto de dados
+//   key:       valor da chave escolhida
+//   dataCache: conteúdo da chave escolhida
+//   err:       indicador de erro
 func (e *Engine) getCacheByNumericCounter() (key string, dataCache data.DataCache, err error) {
 	var randNumber int
 	var safeLoop int
@@ -16,7 +20,7 @@ func (e *Engine) getCacheByNumericCounter() (key string, dataCache data.DataCach
 
 	for {
 		safeLoop += 1
-		if safeLoop > 100*1000 {
+		if safeLoop > 1000 {
 			panic(errors.New("engine.getCacheByNumericCounter().bug: safe loop overflow"))
 		}
 

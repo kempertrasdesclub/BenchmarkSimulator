@@ -4,6 +4,7 @@ import (
 	"cacheSimulator/simulator/data"
 )
 
-func (e *Engine) addUser(key string, data data.DataCache) {
-	e.cache[key] = data
+// addDataCache (Português): Adiciona um novo dado ao modelo de cache usado para popular os dados usados no teste
+func (e *Engine) addDataCache(key string, dataCache data.DataCache) {
+	e.cache[key] = dataCache
 }

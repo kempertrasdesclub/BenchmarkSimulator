@@ -5,7 +5,9 @@ import (
 )
 
 // getEventByPercent (Português): Converte o valor percentual em ação.
-func (e *Engine) getEventByPercent(percent float64) statistics.CacheEvent {
+//   percent: Valor percentual de ponto flutuante entre 0 e 1
+//   event:   Evento selecionado
+func (e *Engine) getEventByPercent(percent float64) (event statistics.CacheEvent) {
 	if e.setAllCache > percent {
 		return statistics.KSetAllCache
 	}
