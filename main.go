@@ -1,8 +1,9 @@
 package main
 
 import (
+	"cacheSimulator/projects/bigcache"
 	"cacheSimulator/projects/cacheAsync"
-	"cacheSimulator/projects/ristretto"
+	go_cache "cacheSimulator/projects/go-cache"
 	"cacheSimulator/simulator/engine"
 	"cacheSimulator/simulator/user"
 	"log"
@@ -12,8 +13,8 @@ func main() {
 	var err error
 	eng := engine.Engine{}
 
-	eng.SetDataSize(900 * 10)
-	eng.SetEventsSize(10 * 100)
+	eng.SetDataSize(300 * 1000)
+	eng.SetEventsSize(1 * 1000)
 	eng.SetInterfaceData(&user.User{})
 	eng.DefineEventOccurrences(
 		1,
@@ -25,9 +26,11 @@ func main() {
 	)
 
 	eng.AddInterfaceInteractions(&cacheAsync.CacheAsync{})
-	eng.AddInterfaceInteractions(&ristretto.Ristretto{})
+	eng.AddInterfaceInteractions(&bigcache.Bigcache{})
+	eng.AddInterfaceInteractions(&go_cache.GoCache{})
+	//eng.AddInterfaceInteractions(&ristretto.Ristretto{})
 
-	err = eng.RunSync()
+	err = eng.RunAsync()
 	if err != nil {
 		log.Fatalf("engine error: %v", err.Error())
 	}

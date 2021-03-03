@@ -2,7 +2,7 @@ package cacheAsync
 
 import (
 	"cacheSimulator/simulator/data"
-	"errors"
+	"log"
 	"sync"
 )
 
@@ -47,7 +47,7 @@ func (e *CacheAsync) InvalidateKey(wg *sync.WaitGroup, key string) {
 	var found bool
 	_, found = e.c[key]
 	if found == false {
-		panic(errors.New("cacheAsync.InvalidateKey().bug: key not found"))
+		log.Println("cacheAsync.InvalidateKey().bug: key not found")
 	}
 
 	delete(e.c, key)
@@ -71,7 +71,7 @@ func (e *CacheAsync) GetKey(wg *sync.WaitGroup, key string) (content data.DataCa
 	defer e.l.Unlock()
 
 	if e.c[key].UserId != key {
-		panic(errors.New("problema de chave"))
+		log.Println("cacheAsync.CacheAsync().error: problema de chave")
 	}
 
 	return e.c[key]

@@ -1,16 +1,10 @@
-package main
+package bigcache
 
 import (
 	"cacheSimulator/simulator/data"
-	"cacheSimulator/simulator/engine"
-	"cacheSimulator/simulator/statistics"
-	"cacheSimulator/simulator/user"
 	"encoding/json"
-	"fmt"
 	"github.com/allegro/bigcache/v3"
 	"log"
-	"math/rand"
-	"reflect"
 	"sync"
 	"time"
 )
@@ -18,186 +12,92 @@ import (
 var wg sync.WaitGroup
 
 type Bigcache struct {
-	c  *bigcache.BigCache
-	l  sync.RWMutex
-	wg *sync.WaitGroup
+	c *bigcache.BigCache
 }
 
-func (e *Bigcache) SetKey(key string, data data.DataCache) {
-	e.wg.Add(1)
-	defer e.wg.Done()
+func (e *Bigcache) SetAllCache(wg *sync.WaitGroup, content map[string]data.DataCache) {
+	wg.Add(1)
+	defer wg.Done()
+
+	e.c, _ = bigcache.NewBigCache(bigcache.DefaultConfig(10 * time.Minute))
 
 	var dataAsByte []byte
-	dataAsByte, _ = json.Marshal(&data)
-
-	_ = e.c.Set(key, dataAsByte)
-}
-
-func (e *Bigcache) SetAll(data map[string]data.DataCache) {
-	e.wg.Add(1)
-	defer e.wg.Done()
-
-	var dataAsByte []byte
-
-	for k, v := range data {
+	for k, v := range content {
 		dataAsByte, _ = json.Marshal(&v)
 		_ = e.c.Set(k, dataAsByte)
 	}
 }
 
-func (e *Bigcache) Init(wg *sync.WaitGroup) {
-	e.wg = wg
+func (e *Bigcache) Set(wg *sync.WaitGroup, key string, content data.DataCache) {
+	wg.Add(1)
+	defer wg.Done()
+
+	var dataAsByte []byte
+	dataAsByte, _ = json.Marshal(&content)
+
+	_ = e.c.Set(key, dataAsByte)
+}
+
+func (e *Bigcache) InvalidateKey(wg *sync.WaitGroup, key string) {
+	wg.Add(1)
+	defer wg.Done()
+
+	var err error
+	err = e.c.Delete(key)
+	if err != nil {
+		log.Printf("bigcache.InvalidateKey().error: %v", err)
+	}
+}
+
+func (e *Bigcache) InvalidateAll(wg *sync.WaitGroup) {
+	wg.Add(1)
+	defer wg.Done()
+
 	e.c, _ = bigcache.NewBigCache(bigcache.DefaultConfig(10 * time.Minute))
 }
 
-func (e *Bigcache) StatusSetAllCache(newData map[string]data.DataCache) {
-	e.wg.Add(1)
-	defer e.wg.Done()
+func (e *Bigcache) GetKey(wg *sync.WaitGroup, key string) (content data.DataCache) {
+	wg.Add(1)
+	defer wg.Done()
 
-	var dataAsByte []byte
-	for k, v := range newData {
-		dataAsByte, _ = json.Marshal(&v)
-		_ = e.c.Set(k, dataAsByte)
-	}
-}
-
-func (e *Bigcache) StatusSet(key string, keyData data.DataCache) {
-	e.wg.Add(1)
-	defer e.wg.Done()
-
-	var dataAsByte []byte
-	dataAsByte, _ = json.Marshal(&keyData)
-
-	_ = e.c.Set(key, dataAsByte)
-}
-
-func (e *Bigcache) StatusSetSync(key string, keyData data.DataCache) {
-	e.wg.Add(1)
-	defer e.wg.Done()
-
-	var dataAsByte []byte
-	dataAsByte, _ = json.Marshal(&keyData)
-
-	_ = e.c.Set(key, dataAsByte)
-}
-
-func (e *Bigcache) StatusInvalidate(key string) {
-	e.wg.Add(1)
-	defer e.wg.Done()
-
-	e.l.Lock()
-	defer e.l.Unlock()
-
-	if key == "all" {
-		e.c, _ = bigcache.NewBigCache(bigcache.DefaultConfig(10 * time.Minute))
-	} else {
-		_ = e.c.Delete(key)
-	}
-}
-
-func (e *Bigcache) Populate(key string, keyData data.DataCache) {
-	e.wg.Add(1)
-	defer e.wg.Done()
-
-	var dataAsByte []byte
-	dataAsByte, _ = json.Marshal(&keyData)
-
-	_ = e.c.Set(key, dataAsByte)
-}
-
-func (e *Bigcache) GetCacheCopy() (cache map[string]data.DataCache) {
-	e.wg.Add(1)
-	defer e.wg.Done()
-
-	e.l.Lock()
-	defer e.l.Unlock()
-
-	cache = make(map[string]data.DataCache)
-	dv, sv := reflect.ValueOf(cache), reflect.ValueOf(e.c)
-
-	for _, k := range sv.MapKeys() {
-		dv.SetMapIndex(k, sv.MapIndex(k))
-	}
-
-	return
-}
-
-func getRandKeyAndValue(numberOfUsers int, cache *map[string]data.DataCache) (key string, keyData data.DataCache) {
-	randGenerator := rand.New(rand.NewSource(time.Now().UnixNano()))
-	keyAsNumber := randGenerator.Intn(numberOfUsers - 1)
-	counter := 0
-
-	for key, keyData = range *cache {
-		if counter != keyAsNumber {
-			counter += 1
-			continue
-		}
-
-		return
-	}
-
-	return
-}
-
-func main() {
-
-	numberOfUsers := 100 * 1000
-	doesNothingPercent := 2
-	setAllCachePercent := 4
-	setOnePercent := 15
-	setSyncPercent := 15
-	invalidateKeyPercent := 4
-	invalidateAllPercent := 1
-	//get all e get key 25
-
-	eventController := &Bigcache{}
-	eventController.Init(&wg)
-
-	statistcsController := &engine.SelectUserAction{}
-
-	numberTotalOfEventsInTests := 1000
-
-	cacheData, err := user.NewList(eventController, statistcsController, numberOfUsers, doesNothingPercent, setAllCachePercent, setOnePercent, setSyncPercent, invalidateKeyPercent, invalidateAllPercent)
-
+	d, err := e.c.Get(key)
 	if err != nil {
-		log.Fatalf("NewList error: %v", err)
+		log.Printf("bigcache.GetKey().error: %v", err)
 	}
 
-	start := time.Now()
-	for i := 0; i != numberTotalOfEventsInTests; i += 1 {
-		c := eventController.GetCacheCopy()
+	var ret data.DataCache
+	err = json.Unmarshal(d, &ret)
+	if err != nil {
+		log.Printf("bigcache.GetKey().error: %v", err)
+	}
 
-		event := statistcsController.GetEvent()
+	return ret
+}
 
-		switch event {
-		case statistics.KDoesNothing:
+func (e *Bigcache) GetAll(wg *sync.WaitGroup) (content map[string]data.DataCache) {
+	wg.Add(1)
+	defer wg.Done()
 
-		case statistics.KInvalidateKey:
-			key, _ := getRandKeyAndValue(numberOfUsers, &c)
-			go eventController.StatusInvalidate(key)
+	content = make(map[string]data.DataCache)
 
-		case statistics.KInvalidateAll:
-			go func(cache *map[string]data.DataCache) {
-				eventController.StatusInvalidate("all")
-				eventController.StatusSetAllCache(*cache)
-			}(cacheData)
-
-		case statistics.KSet:
-			key, value := getRandKeyAndValue(numberOfUsers, &c)
-			go eventController.StatusSet(key, value)
-
-		case statistics.KSetAllCache:
-			go eventController.StatusSetAllCache(*cacheData)
-
-		case statistics.KSetSync:
-			key, value := getRandKeyAndValue(numberOfUsers, &c)
-			go eventController.StatusSetSync(key, value)
-
+	i := e.c.Iterator()
+	for i.SetNext() {
+		info, err := i.Value()
+		if err != nil {
+			log.Printf("bigcache.GetAll().error: %v", err)
 		}
+
+		var ret data.DataCache
+		err = json.Unmarshal(info.Value(), &ret)
+
+		key := info.Key()
+
+		content[key] = ret
 	}
 
-	wg.Wait()
-	duration := time.Since(start)
-	fmt.Printf("Tempo total: %v", duration)
+	return
+}
 
+func (e *Bigcache) GetFrameworkName() (name string) {
+	return "bigCache"
 }

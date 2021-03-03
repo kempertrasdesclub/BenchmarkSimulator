@@ -1,161 +1,67 @@
-package main
+package go_cache
 
 import (
 	"cacheSimulator/simulator/data"
-	"cacheSimulator/simulator/engine"
-	"cacheSimulator/simulator/statistics"
-	"cacheSimulator/simulator/user"
-	"fmt"
 	"github.com/patrickmn/go-cache"
-	"log"
-	"math/rand"
 	"sync"
-	"time"
 )
 
-var wg sync.WaitGroup
-
 type GoCache struct {
-	c  *cache.Cache
-	wg *sync.WaitGroup
+	c *cache.Cache
 }
 
-func (e *GoCache) Init(wg *sync.WaitGroup) {
-	e.wg = wg
-	e.c = cache.New(cache.NoExpiration, cache.NoExpiration)
-}
-
-func (e *GoCache) StatusSetAllCache(newData map[string]data.DataCache) {
-	e.wg.Add(1)
-	defer e.wg.Done()
+func (e *GoCache) SetAllCache(wg *sync.WaitGroup, content map[string]data.DataCache) {
+	wg.Add(1)
+	defer wg.Done()
 
 	e.c = cache.New(cache.NoExpiration, cache.NoExpiration)
-
-	for k, v := range newData {
+	for k, v := range content {
 		e.c.Set(k, v, cache.NoExpiration)
 	}
 }
 
-func (e *GoCache) StatusSet(key string, keyData data.DataCache) {
-	e.wg.Add(1)
-	defer e.wg.Done()
+func (e *GoCache) Set(wg *sync.WaitGroup, key string, content data.DataCache) {
+	wg.Add(1)
+	defer wg.Done()
 
-	e.c.Set(key, keyData, cache.NoExpiration)
+	e.c.Set(key, content, cache.NoExpiration)
 }
 
-func (e *GoCache) StatusSetSync(key string, keyData data.DataCache) {
-	e.wg.Add(1)
-	defer e.wg.Done()
+func (e *GoCache) InvalidateKey(wg *sync.WaitGroup, key string) {
+	wg.Add(1)
+	defer wg.Done()
 
-	e.c.Set(key, keyData, cache.NoExpiration)
+	e.c.Delete(key)
 }
 
-func (e *GoCache) StatusInvalidate(key string) {
-	e.wg.Add(1)
-	defer e.wg.Done()
+func (e *GoCache) InvalidateAll(wg *sync.WaitGroup) {
+	wg.Add(1)
+	defer wg.Done()
 
-	if key == "all" {
-		e.c = cache.New(cache.NoExpiration, cache.NoExpiration)
-	} else {
-		e.c.Delete(key)
-	}
+	e.c = cache.New(cache.NoExpiration, cache.NoExpiration)
 }
 
-func (e *GoCache) Populate(key string, keyData data.DataCache) {
-	e.wg.Add(1)
-	defer e.wg.Done()
+func (e *GoCache) GetKey(wg *sync.WaitGroup, key string) (content data.DataCache) {
+	wg.Add(1)
+	defer wg.Done()
 
-	e.c.Set(key, keyData, cache.NoExpiration)
+	con, _ := e.c.Get(key)
+	return con.(data.DataCache)
 }
 
-func (e *GoCache) GetCacheCopy() (cache map[string]data.DataCache) {
-	e.wg.Add(1)
-	defer e.wg.Done()
+func (e *GoCache) GetAll(wg *sync.WaitGroup) (content map[string]data.DataCache) {
+	wg.Add(1)
+	defer wg.Done()
 
-	items := e.c.Items()
-	cache = make(map[string]data.DataCache)
-
-	for k, v := range items {
-		cache[k] = v.Object.(data.DataCache)
-	}
-	return
-}
-
-func getRandKeyAndValue(numberOfUsers int, cache *map[string]data.DataCache) (key string, keyData data.DataCache) {
-	randGenerator := rand.New(rand.NewSource(time.Now().UnixNano()))
-	keyAsNumber := randGenerator.Intn(numberOfUsers - 1)
-	counter := 0
-
-	for key, keyData = range *cache {
-		if counter != keyAsNumber {
-			counter += 1
-			continue
-		}
-
-		return
+	r := make(map[string]data.DataCache)
+	i := e.c.Items()
+	for k, v := range i {
+		r[k] = v.Object.(data.DataCache)
 	}
 
-	return
+	return r
 }
 
-func main() {
-
-	numberOfUsers := 100 * 1000
-	doesNothingPercent := 2
-	setAllCachePercent := 4
-	setOnePercent := 45
-	setSyncPercent := 45
-	invalidateKeyPercent := 4
-	invalidateAllPercent := 4
-
-	eventController := &GoCache{}
-	eventController.Init(&wg)
-
-	statistcsController := &engine.SelectUserAction{}
-
-	numberTotalOfEventsInTests := 1000
-
-	cacheData, err := user.NewList(eventController, statistcsController, numberOfUsers, doesNothingPercent, setAllCachePercent, setOnePercent, setSyncPercent, invalidateKeyPercent, invalidateAllPercent)
-
-	if err != nil {
-		log.Fatalf("NewList error: %v", err)
-	}
-
-	start := time.Now()
-	for i := 0; i != numberTotalOfEventsInTests; i += 1 {
-		c := eventController.GetCacheCopy()
-
-		event := statistcsController.GetEvent()
-
-		switch event {
-		case statistics.KDoesNothing:
-
-		case statistics.KInvalidateKey:
-			key, _ := getRandKeyAndValue(numberOfUsers, &c)
-			go eventController.StatusInvalidate(key)
-
-		case statistics.KInvalidateAll:
-			go func(cache *map[string]data.DataCache) {
-				eventController.StatusInvalidate("all")
-				eventController.StatusSetAllCache(*cache)
-			}(cacheData)
-
-		case statistics.KSet:
-			key, value := getRandKeyAndValue(numberOfUsers, &c)
-			go eventController.StatusSet(key, value)
-
-		case statistics.KSetAllCache:
-			go eventController.StatusSetAllCache(*cacheData)
-
-		case statistics.KSetSync:
-			key, value := getRandKeyAndValue(numberOfUsers, &c)
-			go eventController.StatusSetSync(key, value)
-
-		}
-	}
-
-	wg.Wait()
-	duration := time.Since(start)
-	fmt.Printf("Tempo total: %v", duration)
-
+func (e *GoCache) GetFrameworkName() (name string) {
+	return "go-cache"
 }
