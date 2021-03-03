@@ -9,5 +9,5 @@ type Data interface {
 	//   key:     chave da cache
 	//   dataKey: conteúdo da chave
 	//   err:     indicador de erro
-	NewData() (key string, dataKey data.DataCache, err error)
+	NewData() (key string, dataKey data.Cache, err error)
 }

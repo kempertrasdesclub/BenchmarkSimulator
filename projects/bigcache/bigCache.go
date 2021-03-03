@@ -10,8 +10,6 @@ import (
 	"time"
 )
 
-var wg sync.WaitGroup
-
 type Bigcache struct {
 	c     *bigcache.BigCache
 	mutex sync.RWMutex
@@ -25,14 +23,14 @@ func (e *Bigcache) mapCopy(dst, src interface{}) {
 	}
 }
 
-func (e *Bigcache) SetAllCache(wg *sync.WaitGroup, content map[string]data.DataCache) {
+func (e *Bigcache) SetAllCache(wg *sync.WaitGroup, content map[string]data.Cache) {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 
 	wg.Add(1)
 	defer wg.Done()
 
-	var m = make(map[string]data.DataCache)
+	var m = make(map[string]data.Cache)
 	e.mapCopy(m, content)
 
 	e.c, _ = bigcache.NewBigCache(bigcache.DefaultConfig(10 * time.Minute))
@@ -44,7 +42,7 @@ func (e *Bigcache) SetAllCache(wg *sync.WaitGroup, content map[string]data.DataC
 	}
 }
 
-func (e *Bigcache) Set(wg *sync.WaitGroup, key string, content data.DataCache) {
+func (e *Bigcache) Set(wg *sync.WaitGroup, key string, content data.Cache) {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 
@@ -81,7 +79,7 @@ func (e *Bigcache) InvalidateAll(wg *sync.WaitGroup) {
 	e.c, _ = bigcache.NewBigCache(bigcache.DefaultConfig(10 * time.Minute))
 }
 
-func (e *Bigcache) GetKey(wg *sync.WaitGroup, key string) (content data.DataCache) {
+func (e *Bigcache) GetKey(wg *sync.WaitGroup, key string) (content data.Cache) {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 
@@ -94,7 +92,7 @@ func (e *Bigcache) GetKey(wg *sync.WaitGroup, key string) (content data.DataCach
 		return
 	}
 
-	var ret data.DataCache
+	var ret data.Cache
 	err = json.Unmarshal(d, &ret)
 	if err != nil {
 		log.Printf("bigcache.GetKey().error: %v", err)
@@ -103,14 +101,14 @@ func (e *Bigcache) GetKey(wg *sync.WaitGroup, key string) (content data.DataCach
 	return ret
 }
 
-func (e *Bigcache) GetAll(wg *sync.WaitGroup) (content map[string]data.DataCache) {
+func (e *Bigcache) GetAll(wg *sync.WaitGroup) (content map[string]data.Cache) {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 
 	wg.Add(1)
 	defer wg.Done()
 
-	content = make(map[string]data.DataCache)
+	content = make(map[string]data.Cache)
 
 	i := e.c.Iterator()
 	for i.SetNext() {
@@ -120,7 +118,7 @@ func (e *Bigcache) GetAll(wg *sync.WaitGroup) (content map[string]data.DataCache
 			return
 		}
 
-		var ret data.DataCache
+		var ret data.Cache
 		err = json.Unmarshal(info.Value(), &ret)
 
 		key := info.Key()

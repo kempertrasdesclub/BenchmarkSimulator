@@ -15,7 +15,7 @@ func (e *Engine) init() (err error) {
 	}
 
 	e.doNotRepeatKey = make(map[string]bool)
-	e.cache = make(map[string]data.DataCache)
+	e.cache = make(map[string]data.Cache)
 	e.eventList = make([]Event, 0)
 
 	err = e.mountData()

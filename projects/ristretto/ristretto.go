@@ -15,7 +15,7 @@ func (e *Ristretto) GetFrameworkName() (name string) {
 	return "ristretto"
 }
 
-func (e *Ristretto) SetAllCache(wg *sync.WaitGroup, content map[string]data.DataCache) {
+func (e *Ristretto) SetAllCache(wg *sync.WaitGroup, content map[string]data.Cache) {
 	wg.Add(1)
 	defer wg.Done()
 
@@ -36,7 +36,7 @@ func (e *Ristretto) SetAllCache(wg *sync.WaitGroup, content map[string]data.Data
 	time.Sleep(10000 * time.Millisecond)
 }
 
-func (e *Ristretto) Set(wg *sync.WaitGroup, key string, content data.DataCache) {
+func (e *Ristretto) Set(wg *sync.WaitGroup, key string, content data.Cache) {
 	wg.Add(1)
 	defer wg.Done()
 
@@ -58,20 +58,20 @@ func (e *Ristretto) InvalidateAll(wg *sync.WaitGroup) {
 	e.c.Clear()
 }
 
-func (e *Ristretto) GetKey(wg *sync.WaitGroup, key string) (content data.DataCache) {
+func (e *Ristretto) GetKey(wg *sync.WaitGroup, key string) (content data.Cache) {
 	wg.Add(1)
 	defer wg.Done()
 
 	keyContent, _ := e.c.Get(key)
 
 	if keyContent == nil {
-		return data.DataCache{}
+		return data.Cache{}
 	}
 
-	return keyContent.(data.DataCache)
+	return keyContent.(data.Cache)
 }
 
-func (e *Ristretto) GetAll(wg *sync.WaitGroup) (content map[string]data.DataCache) {
+func (e *Ristretto) GetAll(wg *sync.WaitGroup) (content map[string]data.Cache) {
 	wg.Add(1)
 	defer wg.Done()
 

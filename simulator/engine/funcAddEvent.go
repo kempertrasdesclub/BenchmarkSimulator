@@ -12,7 +12,7 @@ import (
 //   key:       chave contida na cache afetada
 //   dataCache: novo valor do dado
 //   event:     tipo de evento
-func (e *Engine) addEvent(key string, dataCache data.DataCache, event statistics.CacheEvent) {
+func (e *Engine) addEvent(key string, dataCache data.Cache, event statistics.CacheEvent) {
 	e.eventList = append(e.eventList, Event{
 		DataCache: dataCache,
 		Event:     event,

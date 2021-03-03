@@ -7,7 +7,7 @@ import (
 
 // Event (Português): Arquiva os eventos a serem testados
 type Event struct {
-	DataCache data.DataCache
+	DataCache data.Cache
 	Event     statistics.CacheEvent
 	Key       string
 }

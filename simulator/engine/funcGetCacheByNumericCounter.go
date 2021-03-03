@@ -11,7 +11,7 @@ import (
 //   key:       valor da chave escolhida
 //   dataCache: conteúdo da chave escolhida
 //   err:       indicador de erro
-func (e *Engine) getCacheByNumericCounter() (key string, dataCache data.DataCache, err error) {
+func (e *Engine) getCacheByNumericCounter() (key string, dataCache data.Cache, err error) {
 	var randNumber int
 	var safeLoop int
 	var pass = false

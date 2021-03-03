@@ -11,7 +11,7 @@ type GoCache struct {
 	c *cache.Cache
 }
 
-func (e *GoCache) SetAllCache(wg *sync.WaitGroup, content map[string]data.DataCache) {
+func (e *GoCache) SetAllCache(wg *sync.WaitGroup, content map[string]data.Cache) {
 	wg.Add(1)
 	defer wg.Done()
 
@@ -21,7 +21,7 @@ func (e *GoCache) SetAllCache(wg *sync.WaitGroup, content map[string]data.DataCa
 	}
 }
 
-func (e *GoCache) Set(wg *sync.WaitGroup, key string, content data.DataCache) {
+func (e *GoCache) Set(wg *sync.WaitGroup, key string, content data.Cache) {
 	wg.Add(1)
 	defer wg.Done()
 
@@ -42,7 +42,7 @@ func (e *GoCache) InvalidateAll(wg *sync.WaitGroup) {
 	e.c = cache.New(cache.NoExpiration, cache.NoExpiration)
 }
 
-func (e *GoCache) GetKey(wg *sync.WaitGroup, key string) (content data.DataCache) {
+func (e *GoCache) GetKey(wg *sync.WaitGroup, key string) (content data.Cache) {
 	wg.Add(1)
 	defer wg.Done()
 
@@ -51,17 +51,17 @@ func (e *GoCache) GetKey(wg *sync.WaitGroup, key string) (content data.DataCache
 		log.Println("go_cache.GetKey().error: key not found")
 		return
 	}
-	return con.(data.DataCache)
+	return con.(data.Cache)
 }
 
-func (e *GoCache) GetAll(wg *sync.WaitGroup) (content map[string]data.DataCache) {
+func (e *GoCache) GetAll(wg *sync.WaitGroup) (content map[string]data.Cache) {
 	wg.Add(1)
 	defer wg.Done()
 
-	r := make(map[string]data.DataCache)
+	r := make(map[string]data.Cache)
 	i := e.c.Items()
 	for k, v := range i {
-		r[k] = v.Object.(data.DataCache)
+		r[k] = v.Object.(data.Cache)
 	}
 
 	return r

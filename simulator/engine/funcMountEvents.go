@@ -9,7 +9,7 @@ import (
 //   Nota: As chaves dos testes são únicas para evitar apagar chaves inexistentes.
 func (e *Engine) mountEvents() (err error) {
 	var key string
-	var dataCache data.DataCache
+	var dataCache data.Cache
 
 	for i := 0; i != e.sizeOfEvents; i += 1 {
 

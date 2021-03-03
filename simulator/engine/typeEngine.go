@@ -17,7 +17,7 @@ type Engine struct {
 	doNotRepeatKey map[string]bool
 
 	eventList []Event
-	cache     map[string]data.DataCache
+	cache     map[string]data.Cache
 
 	totalSetAllCache   int
 	totalSetOne        int

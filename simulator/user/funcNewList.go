@@ -6,13 +6,13 @@ import (
 
 type User struct{}
 
-func (e *User) NewData() (key string, user data.DataCache, err error) {
+func (e *User) NewData() (key string, user data.Cache, err error) {
 	key, err = e.NewId()
 	if err != nil {
 		return
 	}
 
-	user = data.DataCache{
+	user = data.Cache{
 		UserId:         key,
 		Status:         "o rarto roeu a roupa do rei de roma",
 		Manual:         false,

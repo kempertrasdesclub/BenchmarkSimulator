@@ -3,7 +3,7 @@ package main
 import (
 	"cacheSimulator/projects/bigcache"
 	"cacheSimulator/projects/cacheAsync"
-	go_cache "cacheSimulator/projects/go-cache"
+	gocache "cacheSimulator/projects/go-cache"
 	"cacheSimulator/projects/ristretto"
 	"cacheSimulator/simulator/engine"
 	"cacheSimulator/simulator/user"
@@ -27,7 +27,7 @@ func main() {
 	)
 
 	eng.AddInterfaceInteractions(&cacheAsync.CacheAsync{})
-	eng.AddInterfaceInteractions(&go_cache.GoCache{})
+	eng.AddInterfaceInteractions(&gocache.GoCache{})
 	eng.AddInterfaceInteractions(&bigcache.Bigcache{})
 	eng.AddInterfaceInteractions(&ristretto.Ristretto{})
 

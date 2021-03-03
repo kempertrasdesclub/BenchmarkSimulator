@@ -9,7 +9,7 @@ import (
 //   err: indicador de erro
 func (e *Engine) mountData() (err error) {
 	var key string
-	var keyData data.DataCache
+	var keyData data.Cache
 
 	var safeLoopOverflow = e.sizeOfData * 2
 	var safeLoop int

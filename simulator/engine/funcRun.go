@@ -26,7 +26,7 @@ func (e *Engine) run(synchronous bool) (err error) {
 	var fistEventTime time.Duration
 	var startTime time.Time
 	var endTime time.Duration
-	var cacheCopy = make(map[string]data.DataCache)
+	var cacheCopy = make(map[string]data.Cache)
 
 	err = e.init()
 	if err != nil {
@@ -74,7 +74,7 @@ func (e *Engine) run(synchronous bool) (err error) {
 					interactCode.SetAllCache(&wg, cacheCopy)
 				} else {
 					e.mapCopy(cacheCopy, e.cache)
-					go func(wg *sync.WaitGroup, cache map[string]data.DataCache) {
+					go func(wg *sync.WaitGroup, cache map[string]data.Cache) {
 						interactCode.InvalidateAll(wg)
 						interactCode.SetAllCache(wg, cache)
 					}(&wg, cacheCopy)

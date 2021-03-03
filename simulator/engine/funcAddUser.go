@@ -5,6 +5,6 @@ import (
 )
 
 // addDataCache (Português): Adiciona um novo dado ao modelo de cache usado para popular os dados usados no teste
-func (e *Engine) addDataCache(key string, dataCache data.DataCache) {
+func (e *Engine) addDataCache(key string, dataCache data.Cache) {
 	e.cache[key] = dataCache
 }
