@@ -120,6 +120,10 @@ func (e *Bigcache) GetAll(wg *sync.WaitGroup) (content map[string]data.Cache) {
 
 		var ret data.Cache
 		err = json.Unmarshal(info.Value(), &ret)
+		if err != nil {
+			log.Printf("bigcache.GetAll().error: %v", err)
+			return
+		}
 
 		key := info.Key()
 
