@@ -12,6 +12,8 @@ type Engine struct {
 	data         interfaces.Data
 	interactions []interfaces.Interactions
 
+	doNotRepeatKey map[string]bool
+
 	eventList []Event
 	cache     map[string]data.DataCache
 

@@ -12,6 +12,7 @@ func (e *Engine) Init() (err error) {
 		return
 	}
 
+	e.doNotRepeatKey = make(map[string]bool)
 	e.cache = make(map[string]data.DataCache)
 	e.eventList = make([]Event, 0)
 

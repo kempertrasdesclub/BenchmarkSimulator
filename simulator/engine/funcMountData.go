@@ -23,8 +23,8 @@ func (e *Engine) mountData() (err error) {
 			return
 		}
 
-		var found interface{}
-		found = e.cache[key]
+		var found bool
+		_, found = e.cache[key]
 		if found == true {
 			i -= 1
 			continue

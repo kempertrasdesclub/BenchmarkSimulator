@@ -11,6 +11,7 @@ func (e *Engine) getCacheByNumericCounter() (key string, dataCache data.DataCach
 	var randNumber int
 	var safeLoop int
 	var pass = false
+	var found bool
 	var randGenerator = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	for {
@@ -26,19 +27,14 @@ func (e *Engine) getCacheByNumericCounter() (key string, dataCache data.DataCach
 			if counter == randNumber {
 
 				pass = true
-				for _, v := range e.eventList {
-					if key == "" {
-						panic(errors.New("engine.getCacheByNumericCounter().bug: key is blank"))
-					}
-					if key == v.Key {
-						pass = false
-						break
-					}
-				}
 
-				if pass == false {
+				_, found = e.doNotRepeatKey[key]
+				if found == true {
+					pass = false
 					break
 				}
+
+				e.doNotRepeatKey[key] = true
 
 				return
 			}
