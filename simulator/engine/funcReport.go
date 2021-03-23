@@ -10,7 +10,7 @@ func (e *Engine) report(firstDataTime, timeDuration time.Duration, frameworkName
 	fmt.Printf("Framework name: %v\n", frameworkName)
 	fmt.Printf("Data size: %v\n", e.sizeOfData)
 	fmt.Printf("Events size: %v\n", e.sizeOfEvents)
-	fmt.Printf("First data load time: %v\n", firstDataTime)
+	//fmt.Printf("First data load time: %v\n", firstDataTime)
 	fmt.Printf("Execution time: %v\n", timeDuration)
 	fmt.Printf("Events list:\n")
 	fmt.Printf("  set all cache: %v\n", e.totalSetAllCache)
