@@ -108,3 +108,63 @@ func main() {
 }
 
 ```
+
+**Output**:
+```
+Framework name: CacheAsync
+Data size: 300000
+Events size: 1000
+First data load time: 130.068958ms
+Execution time: 1.49045525s
+Events list:
+  set all cache: 11
+  set one key: 270
+  set invalidate one key: 99
+  set invalidate all data: 7
+  set invalidate all data: 7
+  get all: 235
+  get key: 378
+
+Framework name: go-cache
+Data size: 300000
+Events size: 1000
+First data load time: 164.771167ms
+Execution time: 26.693374s
+Events list:
+  set all cache: 11
+  set one key: 270
+  set invalidate one key: 99
+  set invalidate all data: 7
+  set invalidate all data: 7
+  get all: 235
+  get key: 378
+
+Framework name: bigCache
+Data size: 300000
+Events size: 1000
+First data load time: 426.301708ms
+Execution time: 2m3.669703166s
+Events list:
+  set all cache: 11
+  set one key: 270
+  set invalidate one key: 99
+  set invalidate all data: 7
+  set invalidate all data: 7
+  get all: 235
+  get key: 378
+
+Framework name: ristretto
+Data size: 300000
+Events size: 1000
+First data load time: 10.206609042s
+Execution time: 3m7.769787959s
+Events list:
+  set all cache: 11
+  set one key: 270
+  set invalidate one key: 99
+  set invalidate all data: 7
+  set invalidate all data: 7
+  get all: 235
+  get key: 378
+```
+
