@@ -13,6 +13,14 @@ type CacheAsyncLoop struct {
 	wg *sync.WaitGroup
 }
 
+func (e *CacheAsyncLoop) Init() (err error) {
+	return
+}
+
+func (e *CacheAsyncLoop) End() (err error) {
+	return
+}
+
 func (e *CacheAsyncLoop) GetFrameworkName() (name string) {
 	return "CacheAsyncLoop"
 }

@@ -12,6 +12,14 @@ type CacheAsync struct {
 	wg *sync.WaitGroup
 }
 
+func (e *CacheAsync) Init() (err error) {
+	return
+}
+
+func (e *CacheAsync) End() (err error) {
+	return
+}
+
 func (e *CacheAsync) GetFrameworkName() (name string) {
 	return "CacheAsync"
 }

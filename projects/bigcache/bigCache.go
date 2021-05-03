@@ -23,6 +23,14 @@ func (e *Bigcache) mapCopy(dst, src interface{}) {
 	}
 }
 
+func (e *Bigcache) Init() (err error) {
+	return
+}
+
+func (e *Bigcache) End() (err error) {
+	return
+}
+
 func (e *Bigcache) SetAllCache(wg *sync.WaitGroup, content map[string]data.Cache) {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()

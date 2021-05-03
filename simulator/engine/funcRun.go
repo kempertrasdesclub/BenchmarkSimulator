@@ -3,6 +3,7 @@ package engine
 import (
 	"cacheSimulator/simulator/data"
 	"cacheSimulator/simulator/statistics"
+	"github.com/helmutkemper/util"
 	"reflect"
 	"sync"
 	"time"
@@ -30,10 +31,17 @@ func (e *Engine) run(synchronous bool) (err error) {
 
 	err = e.init()
 	if err != nil {
+		util.TraceToLog()
 		return
 	}
 
 	for _, interactCode := range e.interactions {
+		err = interactCode.Init()
+		if err != nil {
+			util.TraceToLog()
+			return
+		}
+
 		startTime = time.Now()
 		e.mapCopy(cacheCopy, e.cache)
 		interactCode.SetAllCache(&wg, cacheCopy)
@@ -99,6 +107,12 @@ func (e *Engine) run(synchronous bool) (err error) {
 		wg.Wait()
 		endTime = time.Since(startTime)
 		e.report(fistEventTime, endTime, interactCode.GetFrameworkName())
+
+		err = interactCode.End()
+		if err != nil {
+			util.TraceToLog()
+			return
+		}
 	}
 
 	return

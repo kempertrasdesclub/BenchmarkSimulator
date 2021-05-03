@@ -1,8 +1,7 @@
 package main
 
 import (
-	"cacheSimulator/projects/cacheAsync"
-	"cacheSimulator/projects/cacheAsyncLoop"
+	"cacheSimulator/projects/redis"
 	"cacheSimulator/simulator/engine"
 	"cacheSimulator/simulator/user"
 	"log"
@@ -24,8 +23,9 @@ func main() {
 		40,
 	)
 
-	eng.AddInterfaceInteractions(&cacheAsync.CacheAsync{})
-	eng.AddInterfaceInteractions(&cacheAsyncLoop.CacheAsyncLoop{})
+	eng.AddInterfaceInteractions(&redis.CacheRedis{})
+	//eng.AddInterfaceInteractions(&cacheAsync.CacheAsync{})
+	//eng.AddInterfaceInteractions(&cacheAsyncLoop.CacheAsyncLoop{})
 	//eng.AddInterfaceInteractions(&gocache.GoCache{})
 	//eng.AddInterfaceInteractions(&bigcache.Bigcache{})
 	//eng.AddInterfaceInteractions(&ristretto.Ristretto{})

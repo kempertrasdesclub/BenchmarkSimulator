@@ -11,6 +11,14 @@ type GoCache struct {
 	c *cache.Cache
 }
 
+func (e *GoCache) Init() (err error) {
+	return
+}
+
+func (e *GoCache) End() (err error) {
+	return
+}
+
 func (e *GoCache) SetAllCache(wg *sync.WaitGroup, content map[string]data.Cache) {
 	wg.Add(1)
 	defer wg.Done()

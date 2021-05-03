@@ -7,6 +7,13 @@ import (
 
 // Interactions (Português): Interface com as funções chamadas durante o teste da cache
 type Interactions interface {
+	// Init (Português): Inicializa o framework escolhido casi necessite
+	Init() (err error)
+
+	// End (Português): Finaliza a execução do framework e pode ser usado para remover coisas desnecessários, como
+	// containers usados nos testes
+	End() (err error)
+
 	// SetAllCache (Português): Popula a cache.
 	//     Nota: SetAllCache() é chamado de forma síncrona antes do código rodar a primeira vez.
 	//

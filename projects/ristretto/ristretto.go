@@ -11,6 +11,14 @@ type Ristretto struct {
 	c *ristretto.Cache
 }
 
+func (e *Ristretto) Init() (err error) {
+	return
+}
+
+func (e *Ristretto) End() (err error) {
+	return
+}
+
 func (e *Ristretto) GetFrameworkName() (name string) {
 	return "ristretto"
 }
